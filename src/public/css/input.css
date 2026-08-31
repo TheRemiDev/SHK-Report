@@ -92,4 +92,13 @@
   .ui-select-option.is-selected {
     @apply bg-teal-50 font-semibold text-teal-700;
   }
+
+  /* Pad de signature : sans ceci, dessiner au doigt fait défiler/zoomer la
+     page sur mobile au lieu de signer. */
+  .signature-pad canvas {
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }

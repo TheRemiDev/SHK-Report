@@ -11,7 +11,14 @@
 
     ctx.lineWidth = 2.2;
     ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.strokeStyle = '#0A0A0C';
+
+    // Empêche le navigateur de gérer le geste comme un scroll/zoom tactile :
+    // sans ça, dessiner au doigt fait défiler la page sur mobile au lieu de
+    // signer (la classe Tailwind `touch-none` fait déjà ceci en CSS, on le
+    // fixe aussi en JS par sécurité si ce style n'a pas pu charger).
+    canvas.style.touchAction = 'none';
 
     function pointerPos(evt) {
       const rect = canvas.getBoundingClientRect();
@@ -26,6 +33,13 @@
     function start(evt) {
       drawing = true;
       hasDrawn = true;
+      if (canvas.setPointerCapture) {
+        try {
+          canvas.setPointerCapture(evt.pointerId);
+        } catch {
+          /* ignoré si le pointeur n'est plus valide */
+        }
+      }
       const p = pointerPos(evt);
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
@@ -49,6 +63,7 @@
     canvas.addEventListener('pointerdown', start);
     canvas.addEventListener('pointermove', move);
     window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
     canvas.addEventListener('pointerleave', end);
 
     const clearBtn = container.parentElement.querySelector('.signature-clear');
