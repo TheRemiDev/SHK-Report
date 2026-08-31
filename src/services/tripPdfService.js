@@ -34,16 +34,19 @@ function formatAmount(value) {
 function drawCover(doc, trip, company, detours) {
   doc.rect(0, 0, PAGE.width, 160).fill(LIGHT);
   doc.moveTo(0, 160).lineTo(PAGE.width, 160).lineWidth(2).strokeColor(TEAL).stroke();
-  drawLogo(doc, MARGIN_X, 30, { maxWidth: 240, maxHeight: 94 });
+  drawLogo(doc, MARGIN_X, 32, { maxWidth: 210, maxHeight: 84 });
 
-  doc
-    .font('Helvetica')
-    .fontSize(9.5)
-    .fillColor(SLATE)
-    .text(company.company_website || 'shiftek.fr', PAGE.width - MARGIN_X - 200, 38, {
-      width: 200,
-      align: 'right',
-    });
+  const infoLines = [
+    company.company_address,
+    [company.company_phone, company.company_email].filter(Boolean).join('  ·  '),
+    company.company_website,
+  ].filter(Boolean);
+  let infoY = 34;
+  doc.font('Helvetica').fontSize(9).fillColor(SLATE);
+  infoLines.forEach((line) => {
+    doc.text(line, PAGE.width - MARGIN_X - 220, infoY, { width: 220, align: 'right' });
+    infoY += 13;
+  });
 
   doc
     .font('Helvetica-Bold')
