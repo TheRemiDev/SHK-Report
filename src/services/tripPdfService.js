@@ -18,6 +18,7 @@ const {
   bodyParagraph,
   infoRow,
   drawSignatureBox,
+  drawPhotoGrid,
 } = require('./pdfKit');
 const { formatDateFr, formatDateTimeFr } = require('./pdfLabels');
 
@@ -141,6 +142,7 @@ function drawSignature(doc, trip) {
 async function buildTripPdf(trip, outputStream) {
   const company = settings.getAll();
   const detours = JSON.parse(trip.detours || '[]');
+  const photos = JSON.parse(trip.photos || '[]');
 
   const doc = new PDFDocument({
     size: PAGE.size,
@@ -166,6 +168,8 @@ async function buildTripPdf(trip, outputStream) {
     sectionTitle(doc, 'Notes');
     bodyParagraph(doc, trip.notes);
   }
+
+  drawPhotoGrid(doc, photos, `Justificatifs (${photos.length})`, 'Justificatif');
 
   drawSignature(doc, trip);
 

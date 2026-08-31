@@ -267,6 +267,45 @@ function drawSignatureBox(doc, { x, width, height, y, title, name, signatureData
   }
 }
 
+/**
+ * Grille de photos (2 colonnes) utilisée à la fois pour les photos
+ * d'intervention et les justificatifs de fiche de route. `photos` est un
+ * tableau de noms de fichiers stockés dans uploads/photos.
+ */
+function drawPhotoGrid(doc, photos, title, photoLabel) {
+  if (!photos || !photos.length) return;
+  sectionTitle(doc, title);
+
+  const cols = 2;
+  const gap = 16;
+  const boxW = (PAGE.width - MARGIN_X * 2 - gap) / cols;
+  const boxH = 160;
+
+  for (let i = 0; i < photos.length; i++) {
+    const col = i % cols;
+    if (col === 0) ensureSpace(doc, boxH + 20);
+    const x = MARGIN_X + col * (boxW + gap);
+    const y = doc.y;
+
+    const filePath = path.join(config.uploadDir, 'photos', photos[i]);
+    doc.roundedRect(x, y, boxW, boxH, 4).fillAndStroke(LIGHT, BORDER);
+    if (fs.existsSync(filePath)) {
+      try {
+        doc.image(filePath, x + 6, y + 6, { fit: [boxW - 12, boxH - 22], align: 'center', valign: 'center' });
+      } catch {
+        /* image illisible, ignorée */
+      }
+    }
+    doc
+      .font('Helvetica')
+      .fontSize(7.5)
+      .fillColor(SLATE)
+      .text(`${photoLabel} ${i + 1}`, x + 6, y + boxH - 13);
+
+    if (col === cols - 1 || i === photos.length - 1) doc.y = y + boxH + 14;
+  }
+}
+
 module.exports = {
   INK,
   TEAL,
@@ -290,4 +329,5 @@ module.exports = {
   badge,
   infoRow,
   drawSignatureBox,
+  drawPhotoGrid,
 };

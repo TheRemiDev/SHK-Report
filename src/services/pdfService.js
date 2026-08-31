@@ -1,7 +1,4 @@
-const fs = require('fs');
-const path = require('path');
 const PDFDocument = require('pdfkit');
-const config = require('../config');
 const settings = require('../db/settings');
 const {
   INK,
@@ -22,6 +19,7 @@ const {
   badge,
   infoRow,
   drawSignatureBox,
+  drawPhotoGrid,
 } = require('./pdfKit');
 const {
   STATUS_LABELS,
@@ -170,40 +168,6 @@ function drawSignatures(doc, record) {
   doc.y = y + boxH + 10;
 }
 
-function drawPhotos(doc, record, photos) {
-  if (!photos || !photos.length) return;
-  sectionTitle(doc, `Photos de l’intervention (${photos.length})`);
-
-  const cols = 2;
-  const gap = 16;
-  const boxW = (PAGE.width - MARGIN_X * 2 - gap) / cols;
-  const boxH = 160;
-
-  for (let i = 0; i < photos.length; i++) {
-    const col = i % cols;
-    if (col === 0) ensureSpace(doc, boxH + 20);
-    const x = MARGIN_X + col * (boxW + gap);
-    const y = doc.y;
-
-    const filePath = path.join(config.uploadDir, 'photos', photos[i]);
-    doc.roundedRect(x, y, boxW, boxH, 4).fillAndStroke(LIGHT, BORDER);
-    if (fs.existsSync(filePath)) {
-      try {
-        doc.image(filePath, x + 6, y + 6, { fit: [boxW - 12, boxH - 22], align: 'center', valign: 'center' });
-      } catch {
-        /* image illisible, ignorée */
-      }
-    }
-    doc
-      .font('Helvetica')
-      .fontSize(7.5)
-      .fillColor(SLATE)
-      .text(`Photo ${i + 1}`, x + 6, y + boxH - 13);
-
-    if (col === cols - 1 || i === photos.length - 1) doc.y = y + boxH + 14;
-  }
-}
-
 async function buildInterventionPdf(record, outputStream) {
   const company = settings.getAll();
   const doc = new PDFDocument({
@@ -250,7 +214,7 @@ async function buildInterventionPdf(record, outputStream) {
   }
 
   const photos = JSON.parse(record.photos || '[]');
-  drawPhotos(doc, record, photos);
+  drawPhotoGrid(doc, photos, `Photos de l’intervention (${photos.length})`, 'Photo');
 
   drawSignatures(doc, record);
 

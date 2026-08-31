@@ -13,6 +13,7 @@ const FIELDS = [
   'notes',
   'technician_name',
   'signature_data',
+  'photos',
 ];
 
 function toPayload(data) {
