@@ -32,14 +32,15 @@ function formatAmount(value) {
 }
 
 function drawCover(doc, trip, company, detours) {
-  doc.rect(0, 0, PAGE.width, 160).fill(INK);
-  drawLogo(doc, MARGIN_X, 38, { maxWidth: 220, maxHeight: 70, dark: true });
+  doc.rect(0, 0, PAGE.width, 160).fill(LIGHT);
+  doc.moveTo(0, 160).lineTo(PAGE.width, 160).lineWidth(2).strokeColor(TEAL).stroke();
+  drawLogo(doc, MARGIN_X, 30, { maxWidth: 240, maxHeight: 94 });
 
   doc
     .font('Helvetica')
     .fontSize(9.5)
-    .fillColor('#B7BEC8')
-    .text(company.company_website || 'shiftek.fr', PAGE.width - MARGIN_X - 200, 52, {
+    .fillColor(SLATE)
+    .text(company.company_website || 'shiftek.fr', PAGE.width - MARGIN_X - 200, 38, {
       width: 200,
       align: 'right',
     });

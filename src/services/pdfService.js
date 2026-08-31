@@ -34,15 +34,17 @@ const {
 } = require('./pdfLabels');
 
 function drawCover(doc, record, company) {
-  // Bandeau supérieur sombre
-  doc.rect(0, 0, PAGE.width, 190).fill(INK);
-  drawLogo(doc, MARGIN_X, 48, { maxWidth: 240, maxHeight: 80, dark: true });
+  // Bandeau supérieur clair : le logo importé peut être de n'importe quelle
+  // couleur, un fond clair garantit sa lisibilité sans avoir à l'entourer.
+  doc.rect(0, 0, PAGE.width, 190).fill(LIGHT);
+  doc.moveTo(0, 190).lineTo(PAGE.width, 190).lineWidth(2).strokeColor(TEAL).stroke();
+  drawLogo(doc, MARGIN_X, 36, { maxWidth: 270, maxHeight: 108 });
 
   doc
     .font('Helvetica')
     .fontSize(9.5)
-    .fillColor('#B7BEC8')
-    .text(company.company_website || 'shiftek.fr', PAGE.width - MARGIN_X - 200, 62, {
+    .fillColor(SLATE)
+    .text(company.company_website || 'shiftek.fr', PAGE.width - MARGIN_X - 200, 44, {
       width: 200,
       align: 'right',
     });

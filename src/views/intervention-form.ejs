@@ -100,14 +100,19 @@
             <select class="field-select" id="datacenter_id" name="datacenter_id" <%= datacenterMode === 'registered' ? '' : 'disabled' %>>
               <option value="">— Sélectionner un DataCenter —</option>
               <% datacentersList.forEach(function (d) { %>
-                <option value="<%= d.id %>" <%= String(selectedDatacenterId) === String(d.id) ? 'selected' : '' %>><%= d.name %></option>
+                <option value="<%= d.id %>" data-address="<%= d.address || '' %>" <%= String(selectedDatacenterId) === String(d.id) ? 'selected' : '' %>><%= d.name %></option>
               <% }) %>
             </select>
           </div>
           <div>
             <label class="field-label" for="datacenter_address_registered">Adresse (optionnel)</label>
+            <%
+              const registeredDatacenterAddress = preselectedDatacenter
+                ? preselectedDatacenter.address
+                : (intervention && intervention.datacenter_id ? intervention.datacenter_address : '');
+            %>
             <input class="field-input" type="text" id="datacenter_address_registered" name="datacenter_address" <%= datacenterMode === 'registered' ? '' : 'disabled' %>
-              value="<%= intervention && intervention.datacenter_id ? (intervention.datacenter_address || '') : '' %>" />
+              value="<%= registeredDatacenterAddress || '' %>" />
           </div>
         </div>
 
@@ -171,14 +176,19 @@
             <select class="field-select" id="client_id" name="client_id" <%= clientMode === 'registered' ? '' : 'disabled' %>>
               <option value="">— Sélectionner un client —</option>
               <% clientsList.forEach(function (c) { %>
-                <option value="<%= c.id %>" <%= String(selectedClientId) === String(c.id) ? 'selected' : '' %>><%= c.name %></option>
+                <option value="<%= c.id %>" data-contact="<%= c.contact_name || '' %>" <%= String(selectedClientId) === String(c.id) ? 'selected' : '' %>><%= c.name %></option>
               <% }) %>
             </select>
           </div>
           <div>
             <label class="field-label" for="client_contact_registered">Contact (optionnel)</label>
+            <%
+              const registeredClientContact = preselectedClient
+                ? preselectedClient.contact_name
+                : (intervention && intervention.client_id ? intervention.client_contact : '');
+            %>
             <input class="field-input" type="text" id="client_contact_registered" name="client_contact" <%= clientMode === 'registered' ? '' : 'disabled' %>
-              value="<%= intervention && intervention.client_id ? (intervention.client_contact || '') : '' %>" placeholder="Nom — fonction" />
+              value="<%= registeredClientContact || '' %>" placeholder="Nom — fonction" />
           </div>
         </div>
 
