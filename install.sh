@@ -86,6 +86,25 @@ title "SHK-Report — Installation"
 info "Répertoire de l'application : $APP_DIR"
 
 # ----------------------------------------------------------------------------
+# Réutilisation des informations d'une installation précédente
+# ----------------------------------------------------------------------------
+# install.sh est conçu pour être relancé sans risque (mise à jour) : le
+# domaine et l'email Let's Encrypt fournis au premier lancement sont
+# mémorisés ici, pour ne pas avoir à les ressaisir ni redemander un nouveau
+# certificat à chaque exécution.
+INSTALL_STATE_FILE="$APP_DIR/.install-state"
+if [ -f "$INSTALL_STATE_FILE" ]; then
+  # shellcheck disable=SC1090
+  source "$INSTALL_STATE_FILE"
+  if [ -z "$DOMAIN" ] && [ -n "${SAVED_DOMAIN:-}" ]; then
+    DOMAIN="$SAVED_DOMAIN"
+  fi
+  if [ -z "$CERTBOT_EMAIL" ] && [ -n "${SAVED_CERTBOT_EMAIL:-}" ]; then
+    CERTBOT_EMAIL="$SAVED_CERTBOT_EMAIL"
+  fi
+fi
+
+# ----------------------------------------------------------------------------
 # Collecte interactive des informations manquantes
 # ----------------------------------------------------------------------------
 is_tty() { [ -t 0 ]; }
@@ -94,6 +113,8 @@ if [ -z "$DOMAIN" ]; then
   if is_tty; then
     read -rp "Nom de domaine à utiliser (ex: rapports.shiftek.fr) : " DOMAIN
   fi
+else
+  info "Domaine : $DOMAIN"
 fi
 [ -n "$DOMAIN" ] || fail "Un nom de domaine est requis (--domain)."
 
@@ -103,6 +124,11 @@ if [ -z "$CERTBOT_EMAIL" ]; then
   fi
 fi
 [ -n "$CERTBOT_EMAIL" ] || fail "Un email est requis pour Let's Encrypt (--email)."
+
+cat > "$INSTALL_STATE_FILE" <<EOF
+SAVED_DOMAIN="$DOMAIN"
+SAVED_CERTBOT_EMAIL="$CERTBOT_EMAIL"
+EOF
 
 if is_tty && [ "$COMPANY_NAME" = "ShifTek Hosting" ]; then
   read -rp "Nom de l'entreprise affiché [ShifTek Hosting] : " input_company
@@ -354,9 +380,18 @@ else
   NGINX_LINK=""
 fi
 
+# Si un certificat existe déjà, Certbot a précédemment réécrit ce fichier
+# pour y ajouter le bloc HTTPS + la redirection. On ne le régénère alors
+# plus jamais, pour ne pas écraser cette configuration à chaque relance.
+CERT_EXISTS="false"
+[ -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ] && CERT_EXISTS="true"
+
 mkdir -p /var/www/letsencrypt
 
-cat > "$NGINX_CONF" <<EOF
+if [ "$CERT_EXISTS" = "true" ]; then
+  ok "Configuration Nginx existante conservée (certificat déjà en place pour $DOMAIN)."
+else
+  cat > "$NGINX_CONF" <<EOF
 # Généré automatiquement par install.sh — SHK-Report
 server {
     listen 80;
@@ -379,16 +414,17 @@ server {
 }
 EOF
 
-if [ -n "$NGINX_LINK" ] && [ ! -e "$NGINX_LINK" ]; then
-  ln -s "$NGINX_CONF" "$NGINX_LINK"
-fi
+  if [ -n "$NGINX_LINK" ] && [ ! -e "$NGINX_LINK" ]; then
+    ln -s "$NGINX_CONF" "$NGINX_LINK"
+  fi
 
-if nginx -t >/dev/null 2>&1; then
-  systemctl reload nginx
-  ok "Virtual host Nginx configuré pour $DOMAIN (port local $APP_PORT)."
-else
-  nginx -t
-  fail "La configuration Nginx générée est invalide."
+  if nginx -t >/dev/null 2>&1; then
+    systemctl reload nginx
+    ok "Virtual host Nginx configuré pour $DOMAIN (port local $APP_PORT)."
+  else
+    nginx -t
+    fail "La configuration Nginx générée est invalide."
+  fi
 fi
 
 # ----------------------------------------------------------------------------
@@ -397,16 +433,26 @@ fi
 SSL_ENABLED="false"
 if [ "$SKIP_SSL" = "false" ]; then
   title "Certificat SSL (Let's Encrypt)"
-  if certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$CERTBOT_EMAIL" --redirect; then
+  if [ "$CERT_EXISTS" = "true" ]; then
+    # On ne redemande pas un nouveau certificat à chaque relance (évite de
+    # cogner les quotas hebdomadaires de Let's Encrypt lors des mises à
+    # jour) : le renouvellement automatique (cron) s'occupe de le garder à
+    # jour.
+    SSL_ENABLED="true"
+    ok "Certificat SSL déjà présent pour $DOMAIN (conservé)."
+  elif certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$CERTBOT_EMAIL" --redirect; then
     SSL_ENABLED="true"
     ok "Certificat SSL obtenu et Nginx configuré en HTTPS pour $DOMAIN."
-    (crontab -l 2>/dev/null | grep -q 'certbot renew' || \
-      (crontab -l 2>/dev/null; echo "17 3 * * * certbot renew --quiet --post-hook 'systemctl reload nginx'") | crontab -) \
-      && ok "Renouvellement automatique du certificat programmé (cron)."
   else
     warn "L'obtention automatique du certificat SSL a échoué (DNS pas encore propagé ?)."
     warn "Le site reste accessible en HTTP. Une fois le DNS prêt, relancez :"
     warn "  sudo certbot --nginx -d $DOMAIN --agree-tos -m $CERTBOT_EMAIL --redirect"
+  fi
+
+  if [ "$SSL_ENABLED" = "true" ]; then
+    (crontab -l 2>/dev/null | grep -q 'certbot renew' || \
+      (crontab -l 2>/dev/null; echo "17 3 * * * certbot renew --quiet --post-hook 'systemctl reload nginx'") | crontab -) \
+      && ok "Renouvellement automatique du certificat programmé (cron)."
   fi
 else
   warn "Configuration SSL ignorée (--skip-ssl). Le site est accessible en HTTP uniquement."
