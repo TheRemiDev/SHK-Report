@@ -43,6 +43,8 @@ function runIncrementalMigrations() {
   ensureColumn('interventions', 'client_signed_at', 'TEXT');
   ensureColumn('interventions', 'datacenter_id', 'INTEGER REFERENCES datacenters(id)');
   ensureColumn('trip_logs', 'return_address', 'TEXT');
+  ensureColumn('trip_logs', 'return_date', 'TEXT');
+  ensureColumn('trip_logs', 'photos', "TEXT NOT NULL DEFAULT '[]'");
 
   db.exec(
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_interventions_share_token ON interventions(share_token) WHERE share_token IS NOT NULL`

@@ -6,6 +6,7 @@ const FIELDS = [
   'departure_address',
   'arrival_address',
   'return_address',
+  'return_date',
   'detours',
   'purpose',
   'total_km',
@@ -13,6 +14,7 @@ const FIELDS = [
   'notes',
   'technician_name',
   'signature_data',
+  'photos',
 ];
 
 function toPayload(data) {
