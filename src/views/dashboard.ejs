@@ -1,0 +1,169 @@
+<%- include('partials/head') %>
+  <%- include('partials/nav') %>
+
+  <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-ink-900">Tableau de bord</h1>
+        <p class="mt-1 text-sm text-ink-400">Suivi de toutes les interventions DataCenter.</p>
+      </div>
+      <a href="/interventions/new" class="btn-accent">
+        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        Nouveau rapport
+      </a>
+    </div>
+
+    <%- include('partials/flash') %>
+
+    <div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div class="card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wide text-ink-400">Total interventions</p>
+        <p class="mt-2 text-3xl font-bold text-ink-900"><%= stats.total %></p>
+      </div>
+      <div class="card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wide text-ink-400">Ce mois-ci</p>
+        <p class="mt-2 text-3xl font-bold text-teal-600"><%= stats.thisMonth %></p>
+      </div>
+      <div class="card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wide text-ink-400">DataCenters suivis</p>
+        <p class="mt-2 text-3xl font-bold text-ink-900"><%= stats.datacenters %></p>
+      </div>
+      <div class="card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wide text-ink-400">En cours</p>
+        <p class="mt-2 text-3xl font-bold text-sky-600">
+          <%= (stats.byStatus.find(s => s.status === 'en_cours') || {n:0}).n %>
+        </p>
+      </div>
+    </div>
+
+    <form method="get" action="/" class="card mt-6 grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-6">
+      <div class="lg:col-span-2">
+        <label class="field-label" for="q">Recherche</label>
+        <input class="field-input" type="text" id="q" name="q" value="<%= filters.q || '' %>" placeholder="Référence, client, technicien…" />
+      </div>
+      <div>
+        <label class="field-label" for="status">Statut</label>
+        <select class="field-select" id="status" name="status">
+          <option value="">Tous</option>
+          <% STATUSES.forEach(function (s) { %>
+            <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= ({planifie:'Planifiée',en_cours:'En cours',termine:'Terminée',annule:'Annulée'})[s] %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label class="field-label" for="type">Type</label>
+        <select class="field-select" id="type" name="type">
+          <option value="">Tous</option>
+          <% TYPES.forEach(function (t) { %>
+            <option value="<%= t %>" <%= filters.type === t ? 'selected' : '' %>><%= ({maintenance:'Maintenance',incident:'Incident',installation:'Installation',audit:'Audit',autre:'Autre'})[t] %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label class="field-label" for="datacenter">DataCenter</label>
+        <select class="field-select" id="datacenter" name="datacenter">
+          <option value="">Tous</option>
+          <% datacenters.forEach(function (d) { %>
+            <option value="<%= d %>" <%= filters.datacenter === d ? 'selected' : '' %>><%= d %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label class="field-label" for="sort">Tri</label>
+        <select class="field-select" id="sort" name="sort">
+          <option value="date_desc" <%= filters.sort === 'date_desc' || !filters.sort ? 'selected' : '' %>>Date d’intervention (récent)</option>
+          <option value="date_asc" <%= filters.sort === 'date_asc' ? 'selected' : '' %>>Date d’intervention (ancien)</option>
+          <option value="created_desc" <%= filters.sort === 'created_desc' ? 'selected' : '' %>>Création (récent)</option>
+          <option value="reference" <%= filters.sort === 'reference' ? 'selected' : '' %>>Référence</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label" for="dateFrom">Du</label>
+        <input class="field-input" type="date" id="dateFrom" name="dateFrom" value="<%= filters.dateFrom || '' %>" />
+      </div>
+      <div>
+        <label class="field-label" for="dateTo">Au</label>
+        <input class="field-input" type="date" id="dateTo" name="dateTo" value="<%= filters.dateTo || '' %>" />
+      </div>
+      <div class="flex items-end gap-2 lg:col-span-2">
+        <button type="submit" class="btn-primary">Filtrer</button>
+        <a href="/" class="btn-secondary">Réinitialiser</a>
+      </div>
+    </form>
+
+    <div class="table-shell mt-6">
+      <table class="min-w-full divide-y divide-ink-100 text-sm">
+        <thead class="bg-ink-50">
+          <tr class="text-left text-xs font-semibold uppercase tracking-wide text-ink-400">
+            <th class="px-4 py-3">Référence</th>
+            <th class="px-4 py-3">DataCenter / Client</th>
+            <th class="px-4 py-3">Technicien</th>
+            <th class="px-4 py-3">Date intervention</th>
+            <th class="px-4 py-3">Statut</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-ink-100">
+          <% if (!result.rows.length) { %>
+            <tr>
+              <td colspan="6" class="px-4 py-10 text-center text-sm text-ink-400">
+                Aucune intervention ne correspond à ces critères.
+              </td>
+            </tr>
+          <% } %>
+          <% result.rows.forEach(function (r) { %>
+            <% const statusMap = {
+              planifie: ['Planifiée', 'bg-ink-100 text-ink-600'],
+              en_cours: ['En cours', 'bg-sky-100 text-sky-700'],
+              termine: ['Terminée', 'bg-teal-100 text-teal-700'],
+              annule: ['Annulée', 'bg-red-100 text-red-700'],
+            }; const st = statusMap[r.status] || ['—', 'bg-ink-100 text-ink-600']; %>
+            <tr class="hover:bg-ink-50/60">
+              <td class="whitespace-nowrap px-4 py-3">
+                <a href="/interventions/<%= r.id %>" class="font-semibold text-ink-900 hover:text-teal-600"><%= r.reference %></a>
+                <p class="text-xs text-ink-400"><%= r.title %></p>
+              </td>
+              <td class="px-4 py-3">
+                <p class="font-medium text-ink-800"><%= r.datacenter_name %></p>
+                <p class="text-xs text-ink-400"><%= r.client_name %></p>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-ink-600"><%= r.technician_name %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-ink-600"><%= new Date(r.intervention_date + 'T00:00:00').toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
+              <td class="whitespace-nowrap px-4 py-3">
+                <span class="badge <%= st[1] %>"><%= st[0] %></span>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-right">
+                <div class="inline-flex items-center gap-1">
+                  <a href="/interventions/<%= r.id %>" class="btn-ghost !px-2 !py-1.5" title="Voir">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3.5c-4.5 0-8 4-8 6.5s3.5 6.5 8 6.5 8-4 8-6.5-3.5-6.5-8-6.5zm0 10.5a4 4 0 110-8 4 4 0 010 8z"/></svg>
+                  </a>
+                  <a href="/interventions/<%= r.id %>/pdf" class="btn-ghost !px-2 !py-1.5" title="Télécharger le PDF">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v7.19l2.72-2.72a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 111.06-1.06l2.72 2.72V3.75A.75.75 0 0110 3zM4 15.75A.75.75 0 014.75 15h10.5a.75.75 0 010 1.5H4.75a.75.75 0 01-.75-.75z" clip-rule="evenodd"/></svg>
+                  </a>
+                  <a href="/interventions/<%= r.id %>/edit" class="btn-ghost !px-2 !py-1.5" title="Modifier">
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (result.pageCount > 1) { %>
+      <div class="mt-6 flex items-center justify-between text-sm text-ink-400">
+        <p><%= result.total %> intervention<%= result.total > 1 ? 's' : '' %> · page <%= result.page %> / <%= result.pageCount %></p>
+        <div class="flex gap-2">
+          <% const qs = (p) => Object.assign({}, filters, { page: p }) %>
+          <% if (result.page > 1) { %>
+            <a class="btn-secondary" href="?<%= new URLSearchParams(Object.entries(qs(result.page - 1)).filter(([,v]) => v)).toString() %>">Précédent</a>
+          <% } %>
+          <% if (result.page < result.pageCount) { %>
+            <a class="btn-secondary" href="?<%= new URLSearchParams(Object.entries(qs(result.page + 1)).filter(([,v]) => v)).toString() %>">Suivant</a>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  </main>
+<%- include('partials/foot') %>

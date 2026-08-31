@@ -1,0 +1,45 @@
+<%- include('../partials/head') %>
+  <%- include('../partials/nav') %>
+
+  <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+    <h1 class="text-2xl font-bold text-ink-900">Paramètres de l’entreprise</h1>
+    <p class="mt-1 text-sm text-ink-400">Ces informations apparaissent dans l’interface et sur les rapports PDF.</p>
+
+    <%- include('../partials/flash') %>
+
+    <form action="/admin/settings" method="post" class="card mt-6 grid grid-cols-1 gap-4 p-6 sm:grid-cols-2">
+      <div class="sm:col-span-2">
+        <label class="field-label" for="company_name">Nom de l’entreprise</label>
+        <input class="field-input" type="text" id="company_name" name="company_name" value="<%= settings.company_name %>" required />
+      </div>
+      <div class="sm:col-span-2">
+        <label class="field-label" for="company_address">Adresse</label>
+        <input class="field-input" type="text" id="company_address" name="company_address" value="<%= settings.company_address || '' %>" />
+      </div>
+      <div>
+        <label class="field-label" for="company_email">Email de contact</label>
+        <input class="field-input" type="email" id="company_email" name="company_email" value="<%= settings.company_email || '' %>" />
+      </div>
+      <div>
+        <label class="field-label" for="company_phone">Téléphone</label>
+        <input class="field-input" type="text" id="company_phone" name="company_phone" value="<%= settings.company_phone || '' %>" />
+      </div>
+      <div>
+        <label class="field-label" for="company_website">Site web</label>
+        <input class="field-input" type="text" id="company_website" name="company_website" value="<%= settings.company_website || '' %>" />
+      </div>
+      <div class="sm:col-span-2">
+        <button type="submit" class="btn-accent">Enregistrer</button>
+      </div>
+    </form>
+
+    <div class="card mt-6 p-6">
+      <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Logo</h2>
+      <p class="mt-2 text-sm text-ink-500">
+        Le logo utilisé dans l’application et les PDF se trouve dans
+        <code class="rounded bg-ink-100 px-1.5 py-0.5 text-xs">src/public/assets/logo.svg</code>.
+        Remplacez ce fichier (en conservant le même nom et le même viewBox) pour appliquer votre propre logo partout automatiquement.
+      </p>
+    </div>
+  </main>
+<%- include('../partials/foot') %>

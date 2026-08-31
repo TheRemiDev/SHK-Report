@@ -1,0 +1,10 @@
+node_modules/
+.env
+data/*.sqlite
+data/*.sqlite-journal
+data/*.sqlite-shm
+data/*.sqlite-wal
+uploads/
+src/public/css/style.css
+*.log
+.DS_Store

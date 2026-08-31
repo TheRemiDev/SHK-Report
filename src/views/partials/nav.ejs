@@ -1,0 +1,50 @@
+<header class="sticky top-0 z-40 border-b border-ink-100 bg-white/90 backdrop-blur">
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+    <a href="/" class="flex items-center gap-2 text-ink-900">
+      <svg viewBox="0 0 950 220" class="h-6 w-auto text-ink-900" fill="currentColor" aria-hidden="true">
+        <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" />
+        <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" transform="translate(880,0) scale(-1,1)" />
+        <text x="205" y="140" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="88">SHIFTEK</text>
+        <text x="600" y="90" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="22">.FR</text>
+      </svg>
+      <span class="hidden text-xs font-semibold uppercase tracking-widest text-ink-300 sm:inline">Rapports</span>
+    </a>
+
+    <nav class="hidden items-center gap-1 md:flex">
+      <a href="/" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath === '/' ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Tableau de bord</a>
+      <a href="/interventions/new" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath === '/interventions/new' ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Nouveau rapport</a>
+      <% if (currentUser && currentUser.role === 'admin') { %>
+        <a href="/admin/users" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath.startsWith('/admin/users') ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Utilisateurs</a>
+        <a href="/admin/settings" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath.startsWith('/admin/settings') ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Paramètres</a>
+      <% } %>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <a href="/interventions/new" class="btn-accent hidden sm:inline-flex">
+        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        Nouveau rapport
+      </a>
+      <% if (currentUser) { %>
+        <div class="flex items-center gap-2">
+          <div class="hidden text-right sm:block">
+            <p class="text-sm font-semibold leading-tight text-ink-900"><%= currentUser.fullName %></p>
+            <p class="text-xs leading-tight text-ink-400"><%= currentUser.role === 'admin' ? 'Administrateur' : 'Technicien' %></p>
+          </div>
+          <form action="/logout" method="post">
+            <button class="btn-ghost !px-2.5" title="Déconnexion" aria-label="Déconnexion">
+              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h4a1 1 0 110 2H5v12h3a1 1 0 110 2H4a1 1 0 01-1-1V3zm10.293 2.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L15.586 11H7a1 1 0 110-2h8.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </button>
+          </form>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  <nav class="flex items-center gap-1 overflow-x-auto border-t border-ink-100 px-4 py-2 md:hidden">
+    <a href="/" class="rounded-lg px-3 py-1.5 text-sm font-medium <%= currentPath === '/' ? 'bg-ink-900 text-white' : 'text-ink-500' %>">Tableau de bord</a>
+    <a href="/interventions/new" class="rounded-lg px-3 py-1.5 text-sm font-medium <%= currentPath === '/interventions/new' ? 'bg-ink-900 text-white' : 'text-ink-500' %>">Nouveau</a>
+    <% if (currentUser && currentUser.role === 'admin') { %>
+      <a href="/admin/users" class="rounded-lg px-3 py-1.5 text-sm font-medium text-ink-500">Utilisateurs</a>
+      <a href="/admin/settings" class="rounded-lg px-3 py-1.5 text-sm font-medium text-ink-500">Paramètres</a>
+    <% } %>
+  </nav>
+</header>
