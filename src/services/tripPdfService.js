@@ -21,14 +21,24 @@ const {
 } = require('./pdfKit');
 const { formatDateFr, formatDateTimeFr } = require('./pdfLabels');
 
+// Le PDF utilise la police standard Helvetica (encodage WinAnsi) : l'espace
+// insécable fine (U+202F) que toLocaleString('fr-FR') utilise comme séparateur
+// de milliers n'existe pas dans cet encodage et s'affichait comme un
+// caractère parasite. On la remplace par un espace normal, sans risque ici.
+function frNumber(value, options) {
+  return Number(value)
+    .toLocaleString('fr-FR', options)
+    .replace(/[  ]/g, ' ');
+}
+
 function formatKm(value) {
   if (value === null || value === undefined || value === '') return '—';
-  return `${Number(value).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km`;
+  return `${frNumber(value, { maximumFractionDigits: 1 })} km`;
 }
 
 function formatAmount(value) {
   if (value === null || value === undefined || value === '') return '—';
-  return `${Number(value).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+  return `${frNumber(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 }
 
 function drawCover(doc, trip, company, detours) {
@@ -75,7 +85,10 @@ function drawCover(doc, trip, company, detours) {
   ry += rowGap;
 
   if (detours.length) {
-    infoRow(doc, col1, ry, PAGE.width - MARGIN_X * 2 - 48, 'Détours', detours.join('  →  '));
+    // La flèche → (U+2192) n'existe pas dans l'encodage WinAnsi de la police
+    // standard Helvetica utilisée pour le PDF et s'affichait comme un
+    // caractère parasite ; « » » (chevron), lui, en fait partie.
+    infoRow(doc, col1, ry, PAGE.width - MARGIN_X * 2 - 48, 'Détours', detours.join('  »  '));
     ry += rowGap;
   }
 
