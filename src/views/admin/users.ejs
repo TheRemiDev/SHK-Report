@@ -1,0 +1,77 @@
+<%- include('../partials/head') %>
+  <%- include('../partials/nav') %>
+
+  <main class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <h1 class="text-2xl font-bold text-ink-900">Utilisateurs</h1>
+    <p class="mt-1 text-sm text-ink-400">Gérez les comptes qui peuvent créer et consulter des rapports.</p>
+
+    <%- include('../partials/flash') %>
+
+    <div class="table-shell mt-6">
+      <table class="min-w-full divide-y divide-ink-100 text-sm">
+        <thead class="bg-ink-50">
+          <tr class="text-left text-xs font-semibold uppercase tracking-wide text-ink-400">
+            <th class="px-4 py-3">Nom</th>
+            <th class="px-4 py-3">Email</th>
+            <th class="px-4 py-3">Rôle</th>
+            <th class="px-4 py-3">Statut</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-ink-100">
+          <% users.forEach(function (u) { %>
+            <tr>
+              <td class="px-4 py-3 font-medium text-ink-900"><%= u.full_name %></td>
+              <td class="px-4 py-3 text-ink-600"><%= u.email %></td>
+              <td class="px-4 py-3 text-ink-600"><%= u.role === 'admin' ? 'Administrateur' : 'Technicien' %></td>
+              <td class="px-4 py-3">
+                <span class="badge <%= u.active ? 'bg-teal-100 text-teal-700' : 'bg-ink-100 text-ink-500' %>">
+                  <%= u.active ? 'Actif' : 'Désactivé' %>
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                  <form action="/admin/users/<%= u.id %>/reset-password" method="post" class="flex items-center gap-1">
+                    <input type="password" name="password" placeholder="Nouveau mot de passe" minlength="8" class="field-input !w-36 !py-1.5 !text-xs" />
+                    <button class="btn-secondary whitespace-nowrap !px-2 !py-1.5 !text-xs" type="submit">Réinitialiser</button>
+                  </form>
+                  <form action="/admin/users/<%= u.id %>/toggle" method="post">
+                    <button class="btn-secondary whitespace-nowrap !px-2 !py-1.5 !text-xs" type="submit"><%= u.active ? 'Désactiver' : 'Activer' %></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card mt-8 p-6">
+      <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Créer un utilisateur</h2>
+      <form action="/admin/users" method="post" class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="field-label" for="fullName">Nom complet</label>
+          <input class="field-input" type="text" id="fullName" name="fullName" required />
+        </div>
+        <div>
+          <label class="field-label" for="email">Email</label>
+          <input class="field-input" type="email" id="email" name="email" required />
+        </div>
+        <div>
+          <label class="field-label" for="password">Mot de passe</label>
+          <input class="field-input" type="password" id="password" name="password" minlength="8" required />
+        </div>
+        <div>
+          <label class="field-label" for="role">Rôle</label>
+          <select class="field-select" id="role" name="role">
+            <option value="technicien">Technicien</option>
+            <option value="admin">Administrateur</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <button type="submit" class="btn-accent">Créer l’utilisateur</button>
+        </div>
+      </form>
+    </div>
+  </main>
+<%- include('../partials/foot') %>

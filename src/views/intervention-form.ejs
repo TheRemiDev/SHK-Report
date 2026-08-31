@@ -1,0 +1,214 @@
+<%- include('partials/head') %>
+  <%- include('partials/nav') %>
+
+  <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex items-center gap-3">
+      <a href="/" class="btn-ghost !px-2"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd"/></svg></a>
+      <div>
+        <h1 class="text-2xl font-bold text-ink-900"><%= intervention ? 'Modifier le rapport' : 'Nouveau rapport d’intervention' %></h1>
+        <p class="mt-1 text-sm text-ink-400"><%= intervention ? intervention.reference : 'Une référence sera générée automatiquement à l’enregistrement.' %></p>
+      </div>
+    </div>
+
+    <%- include('partials/flash') %>
+
+    <form
+      method="post"
+      action="<%= intervention ? '/interventions/' + intervention.id : '/interventions' %>"
+      enctype="multipart/form-data"
+      class="mt-6 space-y-6"
+    >
+      <section class="card p-6">
+        <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Informations générales</h2>
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <label class="field-label" for="title">Titre de l’intervention</label>
+            <input class="field-input" type="text" id="title" name="title" required maxlength="180"
+              value="<%= intervention ? intervention.title : '' %>" placeholder="Ex. Remplacement disque défaillant baie SAN" />
+          </div>
+          <div>
+            <label class="field-label" for="type">Type</label>
+            <select class="field-select" id="type" name="type">
+              <% TYPES.forEach(function (t) { %>
+                <option value="<%= t %>" <%= intervention && intervention.type === t ? 'selected' : '' %>>
+                  <%= ({maintenance:'Maintenance préventive',incident:"Résolution d'incident",installation:'Installation / Déploiement',audit:'Audit / Contrôle',autre:'Autre'})[t] %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="priority">Priorité</label>
+            <select class="field-select" id="priority" name="priority">
+              <% PRIORITIES.forEach(function (p) { %>
+                <option value="<%= p %>" <%= (intervention ? intervention.priority : 'normale') === p ? 'selected' : '' %>>
+                  <%= ({basse:'Basse',normale:'Normale',haute:'Haute',critique:'Critique'})[p] %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="status">Statut</label>
+            <select class="field-select" id="status" name="status">
+              <% STATUSES.forEach(function (s) { %>
+                <option value="<%= s %>" <%= (intervention ? intervention.status : 'planifie') === s ? 'selected' : '' %>>
+                  <%= ({planifie:'Planifiée',en_cours:'En cours',termine:'Terminée',annule:'Annulée'})[s] %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="intervention_date">Date d’intervention</label>
+            <input class="field-input" type="date" id="intervention_date" name="intervention_date" required
+              value="<%= intervention ? intervention.intervention_date : '' %>" />
+          </div>
+          <div>
+            <label class="field-label" for="start_time">Heure de début</label>
+            <input class="field-input" type="time" id="start_time" name="start_time" value="<%= intervention ? (intervention.start_time || '') : '' %>" />
+          </div>
+          <div>
+            <label class="field-label" for="end_time">Heure de fin</label>
+            <input class="field-input" type="time" id="end_time" name="end_time" value="<%= intervention ? (intervention.end_time || '') : '' %>" />
+          </div>
+        </div>
+      </section>
+
+      <section class="card p-6">
+        <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">DataCenter &amp; client</h2>
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="field-label" for="datacenter_name">DataCenter</label>
+            <input class="field-input" list="datacenters" type="text" id="datacenter_name" name="datacenter_name" required
+              value="<%= intervention ? intervention.datacenter_name : '' %>" placeholder="Ex. Equinix PA3" />
+            <datalist id="datacenters"><% datacenters.forEach(function (d) { %><option value="<%= d %>"></option><% }) %></datalist>
+          </div>
+          <div>
+            <label class="field-label" for="datacenter_address">Adresse</label>
+            <input class="field-input" type="text" id="datacenter_address" name="datacenter_address"
+              value="<%= intervention ? (intervention.datacenter_address || '') : '' %>" />
+          </div>
+          <div>
+            <label class="field-label" for="datacenter_room">Salle</label>
+            <input class="field-input" type="text" id="datacenter_room" name="datacenter_room"
+              value="<%= intervention ? (intervention.datacenter_room || '') : '' %>" placeholder="Ex. Salle 2" />
+          </div>
+          <div>
+            <label class="field-label" for="rack_reference">Baie / Rack</label>
+            <input class="field-input" type="text" id="rack_reference" name="rack_reference"
+              value="<%= intervention ? (intervention.rack_reference || '') : '' %>" placeholder="Ex. B12-R04" />
+          </div>
+          <div>
+            <label class="field-label" for="client_name">Client</label>
+            <input class="field-input" list="clients" type="text" id="client_name" name="client_name" required
+              value="<%= intervention ? intervention.client_name : '' %>" />
+            <datalist id="clients"><% clients.forEach(function (c) { %><option value="<%= c %>"></option><% }) %></datalist>
+          </div>
+          <div>
+            <label class="field-label" for="client_contact">Contact client</label>
+            <input class="field-input" type="text" id="client_contact" name="client_contact"
+              value="<%= intervention ? (intervention.client_contact || '') : '' %>" placeholder="Nom — fonction" />
+          </div>
+        </div>
+      </section>
+
+      <section class="card p-6">
+        <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Intervenants</h2>
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="field-label" for="technician_name">Technicien principal</label>
+            <input class="field-input" list="technicians" type="text" id="technician_name" name="technician_name" required
+              value="<%= intervention ? intervention.technician_name : (currentUser ? currentUser.fullName : '') %>" />
+            <datalist id="technicians"><% technicians.forEach(function (t) { %><option value="<%= t %>"></option><% }) %></datalist>
+          </div>
+          <div>
+            <label class="field-label" for="additional_technicians">Techniciens additionnels</label>
+            <input class="field-input" type="text" id="additional_technicians" name="additional_technicians"
+              value="<%= intervention ? (intervention.additional_technicians || '') : '' %>" placeholder="Optionnel" />
+          </div>
+        </div>
+      </section>
+
+      <section class="card p-6">
+        <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Détails de l’intervention</h2>
+        <div class="mt-4 space-y-4">
+          <div>
+            <label class="field-label" for="context">Contexte / objectif</label>
+            <textarea class="field-textarea" id="context" name="context" rows="3"><%= intervention ? (intervention.context || '') : '' %></textarea>
+          </div>
+          <div>
+            <label class="field-label" for="actions_taken">Actions réalisées</label>
+            <textarea class="field-textarea" id="actions_taken" name="actions_taken" rows="4"><%= intervention ? (intervention.actions_taken || '') : '' %></textarea>
+          </div>
+          <div>
+            <label class="field-label" for="equipment_involved">Matériel concerné</label>
+            <textarea class="field-textarea" id="equipment_involved" name="equipment_involved" rows="2"><%= intervention ? (intervention.equipment_involved || '') : '' %></textarea>
+          </div>
+          <div>
+            <label class="field-label" for="incidents">Incidents rencontrés</label>
+            <textarea class="field-textarea" id="incidents" name="incidents" rows="3"><%= intervention ? (intervention.incidents || '') : '' %></textarea>
+          </div>
+          <div>
+            <label class="field-label" for="recommendations">Recommandations</label>
+            <textarea class="field-textarea" id="recommendations" name="recommendations" rows="3"><%= intervention ? (intervention.recommendations || '') : '' %></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="card p-6">
+        <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Photos</h2>
+        <p class="mt-1 text-xs text-ink-400">JPEG, PNG ou WEBP — 8 Mo max par photo, 10 photos max.</p>
+
+        <% if (intervention && photos && photos.length) { %>
+          <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <% photos.forEach(function (p) { %>
+              <label class="group relative block overflow-hidden rounded-xl border border-ink-100">
+                <img src="/uploads/photos/<%= p %>" class="h-28 w-full object-cover" alt="Photo intervention" />
+                <span class="absolute inset-0 flex items-center justify-center gap-2 bg-ink-900/0 opacity-0 transition group-has-[:checked]:bg-red-900/50 group-has-[:checked]:opacity-100">
+                  <span class="rounded-full bg-white px-2 py-1 text-xs font-semibold text-red-700">Supprimée</span>
+                </span>
+                <input type="checkbox" name="remove_photos" value="<%= p %>" class="absolute right-1.5 top-1.5 h-4 w-4 rounded border-white" />
+              </label>
+            <% }) %>
+          </div>
+          <p class="mt-1 text-xs text-ink-400">Cochez une photo pour la retirer du rapport.</p>
+        <% } %>
+
+        <div class="mt-4">
+          <input class="field-input" type="file" id="photos" name="photos" accept="image/jpeg,image/png,image/webp" multiple />
+          <div id="photo-preview" class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4"></div>
+        </div>
+      </section>
+
+      <section class="card p-6">
+        <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Signatures</h2>
+        <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label class="field-label">Signature technicien</label>
+            <div class="signature-pad rounded-xl border border-dashed border-ink-200 bg-ink-50" data-target="technician_signature_data">
+              <canvas class="h-40 w-full cursor-crosshair rounded-xl bg-white" width="500" height="220"></canvas>
+            </div>
+            <button type="button" class="btn-secondary mt-2 !py-1.5 signature-clear">Effacer</button>
+            <input type="hidden" name="technician_signature_data" value="<%= intervention ? (intervention.technician_signature_data || '') : '' %>" />
+          </div>
+          <div>
+            <label class="field-label" for="client_signature_name">Nom du représentant client</label>
+            <input class="field-input" type="text" id="client_signature_name" name="client_signature_name"
+              value="<%= intervention ? (intervention.client_signature_name || '') : '' %>" />
+            <label class="field-label mt-3">Signature client</label>
+            <div class="signature-pad rounded-xl border border-dashed border-ink-200 bg-ink-50" data-target="client_signature_data">
+              <canvas class="h-40 w-full cursor-crosshair rounded-xl bg-white" width="500" height="220"></canvas>
+            </div>
+            <button type="button" class="btn-secondary mt-2 !py-1.5 signature-clear">Effacer</button>
+            <input type="hidden" name="client_signature_data" value="<%= intervention ? (intervention.client_signature_data || '') : '' %>" />
+          </div>
+        </div>
+      </section>
+
+      <div class="flex items-center justify-end gap-3">
+        <a href="/" class="btn-secondary">Annuler</a>
+        <button type="submit" class="btn-accent">
+          <%= intervention ? 'Enregistrer les modifications' : 'Créer le rapport' %>
+        </button>
+      </div>
+    </form>
+  </main>
+<%- include('partials/foot') %>
