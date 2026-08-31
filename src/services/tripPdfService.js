@@ -33,7 +33,7 @@ function formatAmount(value) {
 
 function drawCover(doc, trip, company, detours) {
   doc.rect(0, 0, PAGE.width, 160).fill(INK);
-  drawLogo(doc, MARGIN_X, 45, 260, '#FFFFFF');
+  drawLogo(doc, MARGIN_X, 48, 220, '#FFFFFF');
 
   doc
     .font('Helvetica')

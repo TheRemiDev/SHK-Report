@@ -75,6 +75,17 @@ CREATE TABLE IF NOT EXISTS clients (
 
 CREATE INDEX IF NOT EXISTS idx_clients_name ON clients(name);
 
+CREATE TABLE IF NOT EXISTS datacenters (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  address TEXT,
+  notes TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_datacenters_name ON datacenters(name);
+
 CREATE TABLE IF NOT EXISTS trip_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   reference TEXT NOT NULL UNIQUE,

@@ -1,7 +1,7 @@
 {
   "name": "shk-report",
   "version": "1.0.0",
-  "description": "Générateur de rapports d'intervention DataCenter - ShifTek Hosting",
+  "description": "Générateur de rapports d'intervention DataCenter - Shiftek Hosting",
   "private": true,
   "license": "UNLICENSED",
   "main": "src/server.js",

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Installateur SHK-Report — Générateur de rapports d'intervention DataCenter
-# ShifTek Hosting
+# Shiftek Hosting
 #
 # Ce script :
 #   - installe les dépendances système nécessaires (Node.js, Nginx, Certbot)
@@ -15,7 +15,7 @@
 #   sudo ./install.sh
 #   sudo ./install.sh --domain rapports.shiftek.fr --email admin@shiftek.fr \
 #        --admin-name "Rémi Vidon" --admin-email contact@shiftek.fr --admin-password 'MotDePasse123!' \
-#        --company-name "ShifTek Hosting"
+#        --company-name "Shiftek Hosting"
 #
 # Toutes les options peuvent aussi être fournies de façon interactive.
 
@@ -34,7 +34,7 @@ PORT_RANGE_END=3999
 
 DOMAIN=""
 CERTBOT_EMAIL=""
-COMPANY_NAME="ShifTek Hosting"
+COMPANY_NAME="Shiftek Hosting"
 ADMIN_NAME=""
 ADMIN_EMAIL=""
 ADMIN_PASSWORD=""
@@ -130,8 +130,8 @@ SAVED_DOMAIN="$DOMAIN"
 SAVED_CERTBOT_EMAIL="$CERTBOT_EMAIL"
 EOF
 
-if is_tty && [ "$COMPANY_NAME" = "ShifTek Hosting" ]; then
-  read -rp "Nom de l'entreprise affiché [ShifTek Hosting] : " input_company
+if is_tty && [ "$COMPANY_NAME" = "Shiftek Hosting" ]; then
+  read -rp "Nom de l'entreprise affiché [Shiftek Hosting] : " input_company
   [ -n "$input_company" ] && COMPANY_NAME="$input_company"
 fi
 
@@ -324,7 +324,7 @@ title "Service systemd"
 NODE_BIN="$(command -v node)"
 cat > "/etc/systemd/system/${SERVICE_NAME}.service" <<EOF
 [Unit]
-Description=SHK-Report - Rapports d'intervention DataCenter (ShifTek Hosting)
+Description=SHK-Report - Rapports d'intervention DataCenter (Shiftek Hosting)
 After=network.target
 
 [Service]

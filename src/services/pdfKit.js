@@ -25,8 +25,8 @@ const LOGO_COMPACT_RAW = fs.readFileSync(
   path.join(config.root, 'src', 'public', 'assets', 'logo-compact.svg'),
   'utf8'
 );
-const LOGO_FULL_DIMS = { w: 277.08, h: 52 };
-const LOGO_COMPACT_DIMS = { w: 118.34, h: 27 };
+const LOGO_FULL_DIMS = { w: 943.5, h: 348 };
+const LOGO_COMPACT_DIMS = { w: 621, h: 187 };
 
 function logoColored(raw, color) {
   return raw.replace(/currentColor/g, color);

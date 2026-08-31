@@ -1,5 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="ShifTek">
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Shiftek">
   <rect width="256" height="256" rx="52" fill="#0A0A0C" />
-  <text x="128" y="172" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="146" fill="#FFFFFF" text-anchor="middle">S</text>
-  <rect x="72" y="192" width="112" height="10" rx="5" fill="#0F9E8F" />
+  <g fill="#FFFFFF">
+    <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" transform="translate(18,18) scale(0.62)" />
+    <polygon points="190,110 60,0 0,0 130,110 0,220 60,220" transform="translate(78,78) scale(0.62)" />
+  </g>
 </svg>

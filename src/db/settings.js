@@ -1,7 +1,7 @@
 const db = require('./db');
 
 const DEFAULTS = {
-  company_name: 'ShifTek Hosting',
+  company_name: 'Shiftek Hosting',
   company_address: '',
   company_email: '',
   company_phone: '',
