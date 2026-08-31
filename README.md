@@ -9,12 +9,21 @@ export PDF professionnel avec logo et signatures.
 - Authentification par comptes (administrateur / technicien).
 - Création de rapports d'intervention : DataCenter, client, date, techniciens,
   contexte, actions réalisées, matériel concerné, incidents, recommandations.
+- Base de clients dédiée : à la création d'un rapport, choisissez un client déjà
+  enregistré, saisissez un client ponctuel à la main, ou marquez l'intervention
+  comme **interne** (aucune information client demandée ni affichée).
+- Lien client temporaire : pour toute intervention non interne, générez un lien
+  de consultation à durée limitée (30 jours) que le client peut ouvrir sans
+  compte pour consulter le rapport (mise en page proche du PDF final) et le
+  signer électroniquement à distance.
 - Upload de photos et capture de signature (technicien + client) directement
-  dans le navigateur.
+  dans le navigateur, sur place ou à distance.
 - Référence automatique et unique par rapport (`SHK-2026-0001`, ...).
 - Tableau de bord avec recherche et filtres (statut, type, DataCenter, client, dates).
 - Export PDF stylé (page de garde, en-têtes/pieds de page, photos, signatures)
   généré côté serveur avec le logo ShifTek Hosting.
+- Fiches de route : suivi des déplacements (adresses de départ/arrivée, détours,
+  kilomètres parcourus, montant des frais), avec signature et export PDF dédié.
 - Panneau d'administration : gestion des utilisateurs et des informations
   d'entreprise affichées dans l'application et les PDF.
 
@@ -97,15 +106,22 @@ L'application est alors disponible sur `http://localhost:3000`.
 
 ```
 src/
-  app.js               # assemblage Express (middlewares, routes, sessions)
-  server.js             # point d'entrée
-  config/                # configuration (variables d'environnement)
+  app.js                  # assemblage Express (middlewares, routes, sessions)
+  server.js               # point d'entrée
+  config/                 # configuration (variables d'environnement)
   db/                     # connexion SQLite, schéma, migrations, paramètres
-  models/                 # accès aux données (utilisateurs, interventions)
-  routes/                 # routes Express (auth, interventions, admin)
-  services/pdfService.js  # génération des rapports PDF
+  models/                 # accès aux données (utilisateurs, interventions,
+                           # clients, fiches de route)
+  routes/                 # routes Express (auth, interventions, clients,
+                           # fiches de route, lien de partage public, admin)
+  services/
+    pdfKit.js              # briques PDF partagées (logo, en-têtes, mise en page)
+    pdfService.js          # génération des rapports d'intervention PDF
+    tripPdfService.js       # génération des fiches de route PDF
   middleware/              # authentification, upload de fichiers
-  views/                   # templates EJS
-  public/                  # CSS compilé, JS front, logo
+  views/                   # templates EJS (dont share.ejs : page publique de
+                           # consultation/signature client)
+  public/                  # CSS compilé, JS front (dont le sélecteur custom
+                           # et les pads de signature), logo
 install.sh                # installateur automatisé (VPS)
 ```

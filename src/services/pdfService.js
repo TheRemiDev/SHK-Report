@@ -1,9 +1,28 @@
 const fs = require('fs');
 const path = require('path');
 const PDFDocument = require('pdfkit');
-const SVGtoPDF = require('svg-to-pdfkit');
 const config = require('../config');
 const settings = require('../db/settings');
+const {
+  INK,
+  TEAL,
+  SLATE,
+  LIGHT,
+  BORDER,
+  PAGE,
+  MARGIN_X,
+  CONTENT_TOP,
+  MARGIN_BOTTOM,
+  drawLogo,
+  ensureSpace,
+  drawContentHeader,
+  paginate,
+  sectionTitle,
+  bodyParagraph,
+  badge,
+  infoRow,
+  drawSignatureBox,
+} = require('./pdfKit');
 const {
   STATUS_LABELS,
   STATUS_COLORS,
@@ -13,188 +32,6 @@ const {
   formatDateFr,
   formatDateTimeFr,
 } = require('./pdfLabels');
-
-const INK = '#0A0A0C';
-const TEAL = '#0F9E8F';
-const SLATE = '#5B6472';
-const LIGHT = '#F4F5F7';
-const BORDER = '#E2E5EA';
-const WHITE = '#FFFFFF';
-
-const PAGE = { size: 'A4', width: 595.28, height: 841.89 };
-const MARGIN_X = 50;
-const CONTENT_TOP = 108;
-const MARGIN_BOTTOM = 95;
-const MAX_CONTENT_Y = PAGE.height - MARGIN_BOTTOM - 8; // dernière position sûre avant le pied de page
-const FOOTER_Y = 800;
-
-const LOGO_RAW = fs.readFileSync(
-  path.join(config.root, 'src', 'public', 'assets', 'logo.svg'),
-  'utf8'
-);
-const LOGO_NATIVE_W = 950;
-const LOGO_NATIVE_H = 300;
-
-function logoColored(color) {
-  return LOGO_RAW.replace(/currentColor/g, color);
-}
-
-/**
- * svg-to-pdfkit convertit width/height en pixels CSS (1px = 72/96pt) et ne
- * respecte pas toujours un ratio custom width+height. On dessine donc le SVG
- * à sa taille native (en points, assumePt) puis on applique nous-mêmes une
- * échelle via doc.scale() pour obtenir une taille finale fiable et prévisible.
- */
-function drawLogo(doc, x, y, targetWidth, color) {
-  const scale = targetWidth / LOGO_NATIVE_W;
-  doc.save();
-  doc.translate(x, y).scale(scale);
-  SVGtoPDF(doc, logoColored(color), 0, 0, {
-    width: LOGO_NATIVE_W,
-    height: LOGO_NATIVE_H,
-    assumePt: true,
-  });
-  doc.restore();
-}
-
-function dataUrlToBuffer(dataUrl) {
-  if (!dataUrl) return null;
-  const match = /^data:image\/(png|jpeg);base64,(.+)$/.exec(dataUrl);
-  if (!match) return null;
-  try {
-    return Buffer.from(match[2], 'base64');
-  } catch {
-    return null;
-  }
-}
-
-function drawContentHeader(doc, record) {
-  const top = 40;
-  const rightBoxX = PAGE.width - MARGIN_X - 260;
-  const rightBoxW = 260;
-
-  drawLogo(doc, MARGIN_X, top, 150, INK);
-
-  doc
-    .font('Helvetica-Bold')
-    .fontSize(9)
-    .fillColor(INK)
-    .text(record.reference, rightBoxX, top + 2, { width: rightBoxW, align: 'right' });
-
-  doc
-    .font('Helvetica')
-    .fontSize(7.5)
-    .fillColor(SLATE)
-    .text('RAPPORT D’INTERVENTION DATACENTER', rightBoxX, top + 15, {
-      width: rightBoxW,
-      align: 'right',
-      characterSpacing: 0.3,
-    });
-
-  doc
-    .moveTo(MARGIN_X, top + 34)
-    .lineTo(PAGE.width - MARGIN_X, top + 34)
-    .lineWidth(1.4)
-    .strokeColor(TEAL)
-    .stroke();
-
-  doc.y = CONTENT_TOP;
-}
-
-function drawFooter(doc, { company, pageLabel, cover = false }) {
-  const y = FOOTER_Y;
-  // Le pied de page se trouve dans la marge basse du document : on neutralise
-  // temporairement cette marge pour que PDFKit n'insère pas une page
-  // supplémentaire en pensant que le texte déborde.
-  const savedBottom = doc.page.margins.bottom;
-  doc.page.margins.bottom = 0;
-
-  doc.moveTo(MARGIN_X, y).lineTo(PAGE.width - MARGIN_X, y).lineWidth(0.75).strokeColor(BORDER).stroke();
-
-  const left = [company.company_name, company.company_website, company.company_email]
-    .filter(Boolean)
-    .join('  •  ');
-
-  doc
-    .font('Helvetica')
-    .fontSize(7.5)
-    .fillColor(SLATE)
-    .text(left || ' ', MARGIN_X, y + 8, { width: 320 });
-
-  doc
-    .font('Helvetica')
-    .fontSize(7.5)
-    .fillColor(SLATE)
-    .text(pageLabel, MARGIN_X, y + 8, { width: PAGE.width - MARGIN_X * 2, align: 'right' });
-
-  doc
-    .font('Helvetica-Oblique')
-    .fontSize(7)
-    .fillColor('#9AA2AE')
-    .text(
-      'Document confidentiel — usage interne et client autorisé uniquement.',
-      MARGIN_X,
-      y + 19,
-      { width: PAGE.width - MARGIN_X * 2, align: cover ? 'left' : 'center' }
-    );
-
-  doc.page.margins.bottom = savedBottom;
-}
-
-function sectionTitle(doc, text) {
-  ensureSpace(doc, 40);
-  const y = doc.y + 14;
-  doc.rect(MARGIN_X, y, 4, 14).fill(TEAL);
-  doc
-    .font('Helvetica-Bold')
-    .fontSize(11.5)
-    .fillColor(INK)
-    .text(text.toUpperCase(), MARGIN_X + 12, y - 1, { characterSpacing: 0.4 });
-  doc.y = y + 22;
-}
-
-function bodyParagraph(doc, text) {
-  doc
-    .font('Helvetica')
-    .fontSize(10.2)
-    .fillColor('#1F2430')
-    .text(text, MARGIN_X, doc.y, {
-      width: PAGE.width - MARGIN_X * 2,
-      align: 'justify',
-      lineGap: 3.2,
-    });
-  doc.moveDown(0.6);
-}
-
-function ensureSpace(doc, needed) {
-  if (doc.y + needed > MAX_CONTENT_Y) {
-    doc.addPage();
-  }
-}
-
-function badge(doc, x, y, text, color) {
-  doc.font('Helvetica-Bold').fontSize(8.5);
-  const w = doc.widthOfString(text.toUpperCase()) + 18;
-  doc.roundedRect(x, y, w, 17, 8.5).fill(color);
-  doc
-    .font('Helvetica-Bold')
-    .fontSize(8.5)
-    .fillColor(WHITE)
-    .text(text.toUpperCase(), x, y + 4.5, { width: w, align: 'center' });
-  return w;
-}
-
-function infoRow(doc, x, y, width, label, value) {
-  doc.font('Helvetica-Bold').fontSize(7.5).fillColor(SLATE).text(label.toUpperCase(), x, y, {
-    width,
-    characterSpacing: 0.5,
-  });
-  doc
-    .font('Helvetica')
-    .fontSize(10.5)
-    .fillColor(INK)
-    .text(value && String(value).trim() ? value : '—', x, y + 11, { width, lineGap: 1 });
-}
 
 function drawCover(doc, record, company) {
   // Bandeau supérieur sombre
@@ -254,7 +91,7 @@ function drawCover(doc, record, company) {
   let ry = cardY + 24;
   const rowGap = 42;
 
-  infoRow(doc, col1, ry, colW, 'Client', record.client_name);
+  infoRow(doc, col1, ry, colW, record.is_internal ? 'Intervention' : 'Client', record.client_name);
   infoRow(doc, col2, ry, colW, 'Contact client', record.client_contact);
   ry += rowGap;
   infoRow(doc, col1, ry, colW, 'DataCenter', record.datacenter_name);
@@ -294,58 +131,35 @@ function drawCover(doc, record, company) {
 function drawSignatures(doc, record) {
   sectionTitle(doc, 'Signatures');
   ensureSpace(doc, 170);
-  const boxW = (PAGE.width - MARGIN_X * 2 - 24) / 2;
   const boxH = 150;
   const y = doc.y + 4;
+  const fullW = PAGE.width - MARGIN_X * 2;
+  const boxW = record.is_internal ? fullW : (fullW - 24) / 2;
 
-  const boxes = [
-    {
-      x: MARGIN_X,
-      title: 'Technicien ShifTek',
-      name: record.technician_name,
-      sig: record.technician_signature_data,
-    },
-    {
+  drawSignatureBox(doc, {
+    x: MARGIN_X,
+    width: boxW,
+    height: boxH,
+    y,
+    title: 'Technicien ShifTek',
+    name: record.technician_name,
+    signatureData: record.technician_signature_data,
+    dateLabel: `Date : ${formatDateFr(record.intervention_date)}`,
+  });
+
+  if (!record.is_internal) {
+    drawSignatureBox(doc, {
       x: MARGIN_X + boxW + 24,
+      width: boxW,
+      height: boxH,
+      y,
       title: 'Représentant client',
       name: record.client_signature_name,
-      sig: record.client_signature_data,
-    },
-  ];
-
-  for (const b of boxes) {
-    doc.roundedRect(b.x, y, boxW, boxH, 6).stroke(BORDER);
-    doc.font('Helvetica-Bold').fontSize(9).fillColor(SLATE).text(b.title.toUpperCase(), b.x + 14, y + 12, {
-      characterSpacing: 0.4,
+      signatureData: record.client_signature_data,
+      dateLabel: record.client_signed_at
+        ? `Signé le : ${formatDateFr(record.client_signed_at.slice(0, 10))}`
+        : `Date : ${formatDateFr(record.intervention_date)}`,
     });
-
-    const buf = dataUrlToBuffer(b.sig);
-    if (buf) {
-      try {
-        doc.image(buf, b.x + 14, y + 30, { fit: [boxW - 28, 80], align: 'center' });
-      } catch {
-        /* image invalide, ignorée */
-      }
-    }
-
-    doc
-      .moveTo(b.x + 14, y + boxH - 34)
-      .lineTo(b.x + boxW - 14, y + boxH - 34)
-      .strokeColor(BORDER)
-      .stroke();
-
-    doc
-      .font('Helvetica')
-      .fontSize(9.5)
-      .fillColor(INK)
-      .text(b.name || 'Nom non renseigné', b.x + 14, y + boxH - 26, { width: boxW - 28 });
-    doc
-      .font('Helvetica')
-      .fontSize(8)
-      .fillColor(SLATE)
-      .text(`Date : ${formatDateFr(record.intervention_date)}`, b.x + 14, y + boxH - 14, {
-        width: boxW - 28,
-      });
   }
 
   doc.y = y + boxH + 10;
@@ -404,9 +218,10 @@ async function buildInterventionPdf(record, outputStream) {
   drawCover(doc, record, company);
 
   // --- Pages de contenu ---
+  const eyebrow = 'RAPPORT D’INTERVENTION DATACENTER';
   doc.addPage();
-  doc.on('pageAdded', () => drawContentHeader(doc, record, company));
-  drawContentHeader(doc, record, company);
+  doc.on('pageAdded', () => drawContentHeader(doc, record.reference, eyebrow));
+  drawContentHeader(doc, record.reference, eyebrow);
 
   if (record.context) {
     sectionTitle(doc, "Contexte de l'intervention");
@@ -434,17 +249,7 @@ async function buildInterventionPdf(record, outputStream) {
 
   drawSignatures(doc, record);
 
-  // --- Pagination & pieds de page ---
-  const range = doc.bufferedPageRange();
-  for (let i = 0; i < range.count; i++) {
-    doc.switchToPage(range.start + i);
-    if (i === 0) {
-      drawFooter(doc, { company, pageLabel: `Page 1 / ${range.count}`, cover: true });
-    } else {
-      drawFooter(doc, { company, pageLabel: `Page ${i + 1} / ${range.count}` });
-    }
-  }
-
+  paginate(doc, company);
   doc.end();
 
   return new Promise((resolve, reject) => {

@@ -1,0 +1,95 @@
+<%- include('../partials/head') %>
+  <%- include('../partials/nav') %>
+
+  <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-ink-900">Fiches de route</h1>
+        <p class="mt-1 text-sm text-ink-400">Suivi des déplacements, kilomètres et frais associés.</p>
+      </div>
+      <a href="/trips/new" class="btn-accent">
+        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        Nouvelle fiche
+      </a>
+    </div>
+
+    <%- include('../partials/flash') %>
+
+    <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div class="card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wide text-ink-400">Total fiches</p>
+        <p class="mt-2 text-3xl font-bold text-ink-900"><%= stats.total %></p>
+      </div>
+      <div class="card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wide text-ink-400">Kilomètres ce mois-ci</p>
+        <p class="mt-2 text-3xl font-bold text-teal-600"><%= Number(stats.kmThisMonth).toLocaleString('fr-FR', { maximumFractionDigits: 0 }) %></p>
+      </div>
+      <div class="card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wide text-ink-400">Frais ce mois-ci</p>
+        <p class="mt-2 text-3xl font-bold text-ink-900"><%= Number(stats.amountThisMonth).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> €</p>
+      </div>
+    </div>
+
+    <form method="get" action="/trips" class="card mt-6 grid grid-cols-1 gap-3 p-4 sm:grid-cols-4">
+      <div class="sm:col-span-2">
+        <label class="field-label" for="q">Recherche</label>
+        <input class="field-input" type="text" id="q" name="q" value="<%= filters.q || '' %>" placeholder="Référence, adresse, technicien…" />
+      </div>
+      <div>
+        <label class="field-label" for="dateFrom">Du</label>
+        <input class="field-input" type="date" id="dateFrom" name="dateFrom" value="<%= filters.dateFrom || '' %>" />
+      </div>
+      <div>
+        <label class="field-label" for="dateTo">Au</label>
+        <input class="field-input" type="date" id="dateTo" name="dateTo" value="<%= filters.dateTo || '' %>" />
+      </div>
+      <div class="sm:col-span-4 flex gap-2">
+        <button type="submit" class="btn-primary">Filtrer</button>
+        <a href="/trips" class="btn-secondary">Réinitialiser</a>
+      </div>
+    </form>
+
+    <div class="table-shell mt-6">
+      <table class="min-w-full divide-y divide-ink-100 text-sm">
+        <thead class="bg-ink-50">
+          <tr class="text-left text-xs font-semibold uppercase tracking-wide text-ink-400">
+            <th class="px-4 py-3">Référence</th>
+            <th class="px-4 py-3">Trajet</th>
+            <th class="px-4 py-3">Technicien</th>
+            <th class="px-4 py-3">Date</th>
+            <th class="px-4 py-3">Distance</th>
+            <th class="px-4 py-3">Montant</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-ink-100">
+          <% if (!result.rows.length) { %>
+            <tr><td colspan="7" class="px-4 py-10 text-center text-sm text-ink-400">Aucune fiche de route enregistrée.</td></tr>
+          <% } %>
+          <% result.rows.forEach(function (t) { %>
+            <tr class="hover:bg-ink-50/60">
+              <td class="whitespace-nowrap px-4 py-3">
+                <a href="/trips/<%= t.id %>" class="font-semibold text-ink-900 hover:text-teal-600"><%= t.reference %></a>
+              </td>
+              <td class="px-4 py-3 text-ink-600">
+                <p class="max-w-xs truncate"><%= t.departure_address %> → <%= t.arrival_address %></p>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-ink-600"><%= t.technician_name %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-ink-600"><%= new Date(t.trip_date + 'T00:00:00').toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-ink-600"><%= t.total_km ? Number(t.total_km).toLocaleString('fr-FR') + ' km' : '—' %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-ink-600"><%= t.total_amount ? Number(t.total_amount).toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' €' : '—' %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-right">
+                <a href="/trips/<%= t.id %>/pdf" class="btn-ghost !px-2 !py-1.5" title="Télécharger le PDF">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v7.19l2.72-2.72a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 111.06-1.06l2.72 2.72V3.75A.75.75 0 0110 3zM4 15.75A.75.75 0 014.75 15h10.5a.75.75 0 010 1.5H4.75a.75.75 0 01-.75-.75z" clip-rule="evenodd"/></svg>
+                </a>
+                <a href="/trips/<%= t.id %>/edit" class="btn-ghost !px-2 !py-1.5" title="Modifier">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+<%- include('../partials/foot') %>

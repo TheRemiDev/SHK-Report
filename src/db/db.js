@@ -17,6 +17,37 @@ function runMigrations() {
   db.exec(schema);
 }
 
+function columnExists(table, column) {
+  return db
+    .prepare(`PRAGMA table_info(${table})`)
+    .all()
+    .some((col) => col.name === column);
+}
+
+function ensureColumn(table, column, definition) {
+  if (!columnExists(table, column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+
+/**
+ * Ajouts incrémentaux à des tables déjà existantes (schema.sql ne gère que la
+ * création initiale via CREATE TABLE IF NOT EXISTS). Chaque appel est
+ * idempotent : sans effet si la colonne existe déjà.
+ */
+function runIncrementalMigrations() {
+  ensureColumn('interventions', 'client_id', 'INTEGER REFERENCES clients(id)');
+  ensureColumn('interventions', 'is_internal', 'INTEGER NOT NULL DEFAULT 0');
+  ensureColumn('interventions', 'share_token', 'TEXT');
+  ensureColumn('interventions', 'share_expires_at', 'TEXT');
+  ensureColumn('interventions', 'client_signed_at', 'TEXT');
+
+  db.exec(
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_interventions_share_token ON interventions(share_token) WHERE share_token IS NOT NULL`
+  );
+}
+
 runMigrations();
+runIncrementalMigrations();
 
 module.exports = db;

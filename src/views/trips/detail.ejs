@@ -1,0 +1,95 @@
+<%- include('../partials/head') %>
+  <%- include('../partials/nav') %>
+
+  <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div class="flex items-start gap-3">
+        <a href="/trips" class="btn-ghost !px-2 mt-1"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd"/></svg></a>
+        <div>
+          <h1 class="text-2xl font-bold text-ink-900"><%= trip.reference %></h1>
+          <p class="mt-1 text-sm text-ink-500"><%= trip.departure_address %> → <%= trip.arrival_address %></p>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a href="/trips/<%= trip.id %>/pdf" class="btn-accent">
+          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v7.19l2.72-2.72a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 111.06-1.06l2.72 2.72V3.75A.75.75 0 0110 3zM4 15.75A.75.75 0 014.75 15h10.5a.75.75 0 010 1.5H4.75a.75.75 0 01-.75-.75z" clip-rule="evenodd"/></svg>
+          Télécharger le PDF
+        </a>
+        <a href="/trips/<%= trip.id %>/edit" class="btn-secondary">Modifier</a>
+        <% if (currentUser && currentUser.role === 'admin') { %>
+          <form action="/trips/<%= trip.id %>/delete" method="post" data-confirm="Supprimer définitivement cette fiche ?">
+            <button type="submit" class="btn-danger">Supprimer</button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+
+    <%- include('../partials/flash') %>
+
+    <div class="mt-6 card p-6">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div>
+          <p class="field-label">Date</p>
+          <p class="text-sm font-medium text-ink-900"><%= new Date(trip.trip_date + 'T00:00:00').toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) %></p>
+        </div>
+        <div>
+          <p class="field-label">Technicien</p>
+          <p class="text-sm font-medium text-ink-900"><%= trip.technician_name %></p>
+        </div>
+        <div>
+          <p class="field-label">Motif</p>
+          <p class="text-sm font-medium text-ink-900"><%= trip.purpose || '—' %></p>
+        </div>
+        <div>
+          <p class="field-label">Départ</p>
+          <p class="text-sm font-medium text-ink-900"><%= trip.departure_address %></p>
+        </div>
+        <div>
+          <p class="field-label">Arrivée</p>
+          <p class="text-sm font-medium text-ink-900"><%= trip.arrival_address %></p>
+        </div>
+        <% if (detours.length) { %>
+          <div>
+            <p class="field-label">Détours</p>
+            <p class="text-sm font-medium text-ink-900"><%= detours.join(' → ') %></p>
+          </div>
+        <% } %>
+        <div>
+          <p class="field-label">Distance totale</p>
+          <p class="text-sm font-medium text-ink-900"><%= trip.total_km ? Number(trip.total_km).toLocaleString('fr-FR') + ' km' : '—' %></p>
+        </div>
+        <div>
+          <p class="field-label">Montant dépensé</p>
+          <p class="text-sm font-medium text-ink-900"><%= trip.total_amount ? Number(trip.total_amount).toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' €' : '—' %></p>
+        </div>
+      </div>
+    </div>
+
+    <% if (trip.notes) { %>
+      <div class="mt-6 card p-6">
+        <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-teal-600">
+          <span class="h-3 w-1 rounded-full bg-teal-500"></span>Notes
+        </h2>
+        <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink-700"><%= trip.notes %></p>
+      </div>
+    <% } %>
+
+    <div class="mt-6 card p-6">
+      <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-teal-600">
+        <span class="h-3 w-1 rounded-full bg-teal-500"></span>Signature
+      </h2>
+      <div class="mt-3 max-w-sm rounded-xl border border-ink-100 p-4">
+        <% if (trip.signature_data) { %>
+          <img src="<%= trip.signature_data %>" class="h-24" alt="Signature" />
+        <% } else { %>
+          <p class="text-xs italic text-ink-300">Aucune signature enregistrée</p>
+        <% } %>
+        <p class="mt-2 text-sm font-medium text-ink-900"><%= trip.technician_name %></p>
+      </div>
+    </div>
+
+    <p class="mt-6 text-xs text-ink-400">
+      Fiche créée le <%= new Date(trip.created_at.replace(' ', 'T')).toLocaleString('fr-FR') %>
+    </p>
+  </main>
+<%- include('../partials/foot') %>

@@ -1,15 +1,16 @@
 const db = require('../db/db');
 
 /**
- * Génère une référence séquentielle du type SHK-2026-0001, réinitialisée chaque année.
+ * Génère une référence séquentielle du type PREFIX-2026-0001, réinitialisée
+ * chaque année, pour une table et une colonne données.
  */
-function generateReference(date = new Date()) {
+function generateReferenceFor(table, prefixBase, date = new Date()) {
   const year = date.getFullYear();
-  const prefix = `SHK-${year}-`;
+  const prefix = `${prefixBase}-${year}-`;
 
   const row = db
     .prepare(
-      `SELECT reference FROM interventions
+      `SELECT reference FROM ${table}
        WHERE reference LIKE ?
        ORDER BY id DESC LIMIT 1`
     )
@@ -24,4 +25,12 @@ function generateReference(date = new Date()) {
   return `${prefix}${String(next).padStart(4, '0')}`;
 }
 
-module.exports = { generateReference };
+function generateReference(date = new Date()) {
+  return generateReferenceFor('interventions', 'SHK', date);
+}
+
+function generateTripReference(date = new Date()) {
+  return generateReferenceFor('trip_logs', 'FDR', date);
+}
+
+module.exports = { generateReference, generateTripReference };

@@ -1,0 +1,46 @@
+<%- include('../partials/head') %>
+  <%- include('../partials/nav') %>
+
+  <main class="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex items-center gap-3">
+      <a href="/clients" class="btn-ghost !px-2"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd"/></svg></a>
+      <h1 class="text-2xl font-bold text-ink-900"><%= client ? 'Modifier le client' : 'Nouveau client' %></h1>
+    </div>
+
+    <%- include('../partials/flash') %>
+
+    <form method="post" action="<%= client ? '/clients/' + client.id : '/clients' %>" class="card mt-6 grid grid-cols-1 gap-4 p-6 sm:grid-cols-2">
+      <% if (typeof returnTo !== 'undefined' && returnTo) { %>
+        <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+      <% } %>
+      <div class="sm:col-span-2">
+        <label class="field-label" for="name">Nom du client</label>
+        <input class="field-input" type="text" id="name" name="name" required value="<%= client ? client.name : '' %>" />
+      </div>
+      <div>
+        <label class="field-label" for="contact_name">Nom du contact</label>
+        <input class="field-input" type="text" id="contact_name" name="contact_name" value="<%= client ? (client.contact_name || '') : '' %>" />
+      </div>
+      <div>
+        <label class="field-label" for="contact_email">Email</label>
+        <input class="field-input" type="email" id="contact_email" name="contact_email" value="<%= client ? (client.contact_email || '') : '' %>" />
+      </div>
+      <div>
+        <label class="field-label" for="contact_phone">Téléphone</label>
+        <input class="field-input" type="text" id="contact_phone" name="contact_phone" value="<%= client ? (client.contact_phone || '') : '' %>" />
+      </div>
+      <div>
+        <label class="field-label" for="address">Adresse</label>
+        <input class="field-input" type="text" id="address" name="address" value="<%= client ? (client.address || '') : '' %>" />
+      </div>
+      <div class="sm:col-span-2">
+        <label class="field-label" for="notes">Notes internes</label>
+        <textarea class="field-textarea" id="notes" name="notes" rows="3"><%= client ? (client.notes || '') : '' %></textarea>
+      </div>
+      <div class="sm:col-span-2 flex justify-end gap-3">
+        <a href="/clients" class="btn-secondary">Annuler</a>
+        <button type="submit" class="btn-accent"><%= client ? 'Enregistrer' : 'Créer le client' %></button>
+      </div>
+    </form>
+  </main>
+<%- include('../partials/foot') %>

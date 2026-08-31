@@ -14,6 +14,8 @@ const FIELDS = [
   'datacenter_address',
   'datacenter_room',
   'rack_reference',
+  'is_internal',
+  'client_id',
   'client_name',
   'client_contact',
   'intervention_date',
@@ -141,6 +143,34 @@ function distinctValues(column) {
     .map((r) => r.v);
 }
 
+function findByShareToken(token) {
+  return db
+    .prepare(`SELECT * FROM interventions WHERE share_token = ? AND share_expires_at > datetime('now')`)
+    .get(token);
+}
+
+function setShareToken(id, token, expiresAt) {
+  db.prepare('UPDATE interventions SET share_token = ?, share_expires_at = ? WHERE id = ?').run(
+    token,
+    expiresAt,
+    id
+  );
+}
+
+function revokeShareToken(id) {
+  db.prepare('UPDATE interventions SET share_token = NULL, share_expires_at = NULL WHERE id = ?').run(id);
+}
+
+function recordClientSignature(id, { name, signatureData }) {
+  db.prepare(
+    `UPDATE interventions
+     SET client_signature_name = COALESCE(NULLIF(@name, ''), client_signature_name),
+         client_signature_data = @signatureData,
+         client_signed_at = datetime('now')
+     WHERE id = @id`
+  ).run({ id, name: name || '', signatureData });
+}
+
 function stats() {
   const total = db.prepare('SELECT COUNT(*) AS n FROM interventions').get().n;
   const byStatus = db.prepare('SELECT status, COUNT(*) AS n FROM interventions GROUP BY status').all();
@@ -165,4 +195,8 @@ module.exports = {
   search,
   distinctValues,
   stats,
+  findByShareToken,
+  setShareToken,
+  revokeShareToken,
+  recordClientSignature,
 };

@@ -1,55 +1,50 @@
 <%- include('partials/head') %>
-  <div class="grid min-h-screen lg:grid-cols-2">
-    <div class="relative hidden flex-col justify-between overflow-hidden bg-ink-900 p-12 text-white lg:flex">
-      <div class="absolute inset-0 opacity-[0.06]" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 28px 28px;"></div>
-
-      <svg viewBox="0 0 950 300" class="relative h-10 w-auto text-white" fill="currentColor" aria-hidden="true">
-        <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" />
-        <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" transform="translate(880,0) scale(-1,1)" />
-        <text x="205" y="165" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="88">SHIFTEK</text>
-        <text x="600" y="115" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="22">.FR</text>
-        <text x="205" y="205" font-family="Arial, Helvetica, sans-serif" font-weight="400" font-size="24" letter-spacing="9">HOSTING</text>
-      </svg>
-
-      <div class="relative max-w-md">
-        <p class="text-2xl font-semibold leading-snug">Rapports d’intervention DataCenter, générés en quelques minutes.</p>
-        <p class="mt-4 text-sm leading-relaxed text-ink-300">
-          Centralisez vos interventions, suivez chaque passage en salle et livrez à vos clients
-          des rapports PDF professionnels, à votre image.
-        </p>
-      </div>
-
-      <p class="relative text-xs text-ink-400">&copy; <%= new Date().getFullYear() %> <%= companyName %>. Usage interne.</p>
-    </div>
-
-    <div class="flex items-center justify-center px-6 py-12 sm:px-10">
-      <div class="w-full max-w-sm">
-        <svg viewBox="0 0 950 220" class="mb-8 h-7 w-auto text-ink-900 lg:hidden" fill="currentColor" aria-hidden="true">
-          <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" />
-          <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" transform="translate(880,0) scale(-1,1)" />
-          <text x="205" y="140" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="88">SHIFTEK</text>
-          <text x="600" y="90" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="22">.FR</text>
-        </svg>
-
-        <h1 class="text-2xl font-bold text-ink-900">Connexion</h1>
-        <p class="mt-1 text-sm text-ink-400">Accédez à vos rapports d’intervention.</p>
-
-        <div class="mt-6">
-          <%- include('partials/flash') %>
+  <div class="flex min-h-screen flex-col bg-black">
+    <div class="flex flex-1 items-center justify-center px-4 py-16">
+      <div class="w-full max-w-[380px]">
+        <div class="flex justify-center">
+          <%- include('partials/logo-mark', { variant: 'compact', className: 'h-6 w-auto text-white' }) %>
         </div>
 
-        <form action="/login" method="post" class="mt-6 space-y-4">
-          <div>
-            <label class="field-label" for="email">Adresse email</label>
-            <input class="field-input" type="email" id="email" name="email" required autofocus autocomplete="username" placeholder="prenom.nom@shiftek.fr" />
+        <p class="mt-6 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-400">
+          Portail interne — accès réservé
+        </p>
+
+        <div class="mt-8 rounded-xl border border-white/10 bg-ink-900 p-8 shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset,0_20px_50px_-20px_rgba(0,0,0,0.6)]">
+          <h1 class="text-lg font-semibold text-white">Connexion</h1>
+          <p class="mt-1 text-sm text-ink-400">Rapports d’intervention DataCenter.</p>
+
+          <div class="mt-5">
+            <%- include('partials/flash') %>
           </div>
-          <div>
-            <label class="field-label" for="password">Mot de passe</label>
-            <input class="field-input" type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••" />
-          </div>
-          <button type="submit" class="btn-accent w-full">Se connecter</button>
-        </form>
+
+          <form action="/login" method="post" class="mt-5 space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-ink-300 mb-1.5" for="email">Adresse email</label>
+              <input
+                class="w-full rounded-md border border-white/10 bg-black/20 px-3.5 py-2.5 text-sm text-white placeholder-ink-500 shadow-inner transition focus:border-teal-500/60 focus:outline-none focus:ring-1 focus:ring-teal-500/40"
+                type="email" id="email" name="email" required autofocus autocomplete="username" placeholder="prenom.nom@shiftek.fr" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-ink-300 mb-1.5" for="password">Mot de passe</label>
+              <input
+                class="w-full rounded-md border border-white/10 bg-black/20 px-3.5 py-2.5 text-sm text-white placeholder-ink-500 shadow-inner transition focus:border-teal-500/60 focus:outline-none focus:ring-1 focus:ring-teal-500/40"
+                type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••" />
+            </div>
+            <button type="submit" class="w-full rounded-md bg-white py-2.5 text-sm font-semibold text-ink-900 transition hover:bg-ink-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900">
+              Se connecter
+            </button>
+          </form>
+        </div>
+
+        <p class="mt-6 text-center text-xs text-ink-500">
+          Accès non autorisé interdit. En cas de difficulté, contactez votre administrateur.
+        </p>
       </div>
     </div>
+
+    <footer class="border-t border-white/5 px-4 py-5 text-center text-xs text-ink-500">
+      &copy; <%= new Date().getFullYear() %> <%= companyName %>
+    </footer>
   </div>
 <%- include('partials/foot') %>

@@ -21,6 +21,9 @@
           <div class="flex flex-wrap items-center gap-2">
             <h1 class="text-2xl font-bold text-ink-900"><%= intervention.reference %></h1>
             <span class="badge <%= st[1] %>"><%= st[0] %></span>
+            <% if (intervention.is_internal) { %>
+              <span class="badge bg-ink-100 text-ink-500">Interne</span>
+            <% } %>
           </div>
           <p class="mt-1 text-sm text-ink-500"><%= intervention.title %></p>
         </div>
@@ -45,8 +48,17 @@
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <div>
           <p class="field-label">Client</p>
-          <p class="text-sm font-medium text-ink-900"><%= intervention.client_name %></p>
-          <p class="text-xs text-ink-400"><%= intervention.client_contact || '' %></p>
+          <% if (intervention.is_internal) { %>
+            <p class="text-sm font-medium text-ink-400 italic">Intervention interne</p>
+          <% } else { %>
+            <p class="text-sm font-medium text-ink-900">
+              <%= intervention.client_name %>
+              <% if (intervention.client_id) { %>
+                <a href="/clients/<%= intervention.client_id %>/edit" class="ml-1 text-xs font-normal text-teal-600 hover:text-teal-700">(fiche)</a>
+              <% } %>
+            </p>
+            <p class="text-xs text-ink-400"><%= intervention.client_contact || '' %></p>
+          <% } %>
         </div>
         <div>
           <p class="field-label">DataCenter</p>
@@ -110,7 +122,7 @@
         <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-teal-600">
           <span class="h-3 w-1 rounded-full bg-teal-500"></span>Signatures
         </h2>
-        <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="mt-3 grid grid-cols-1 gap-4 <%= intervention.is_internal ? '' : 'sm:grid-cols-2' %>">
           <div class="rounded-xl border border-ink-100 p-4">
             <p class="text-xs font-semibold uppercase tracking-wide text-ink-400">Technicien ShifTek</p>
             <% if (intervention.technician_signature_data) { %>
@@ -120,6 +132,7 @@
             <% } %>
             <p class="mt-2 text-sm font-medium text-ink-900"><%= intervention.technician_name %></p>
           </div>
+          <% if (!intervention.is_internal) { %>
           <div class="rounded-xl border border-ink-100 p-4">
             <p class="text-xs font-semibold uppercase tracking-wide text-ink-400">Représentant client</p>
             <% if (intervention.client_signature_data) { %>
@@ -129,8 +142,48 @@
             <% } %>
             <p class="mt-2 text-sm font-medium text-ink-900"><%= intervention.client_signature_name || '—' %></p>
           </div>
+          <% } %>
         </div>
       </div>
+
+      <% if (!intervention.is_internal) { %>
+        <div class="card p-6">
+          <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-teal-600">
+            <span class="h-3 w-1 rounded-full bg-teal-500"></span>Lien client
+          </h2>
+          <p class="mt-2 text-sm text-ink-500">
+            Partagez ce lien temporaire pour permettre au client de consulter le rapport et le signer à distance,
+            sans avoir besoin de compte.
+          </p>
+
+          <% if (shareUrl) { %>
+            <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+              <input type="text" readonly value="<%= shareUrl %>" id="share-url-input" class="field-input flex-1 !text-ink-600" onclick="this.select()" />
+              <button type="button" class="btn-secondary" data-copy-target="share-url-input">Copier</button>
+            </div>
+            <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-ink-400">
+              <span>Expire le <%= new Date(intervention.share_expires_at.replace(' ', 'T')).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) %></span>
+              <% if (intervention.client_signed_at) { %>
+                <span class="badge bg-teal-100 text-teal-700">Signé le <%= new Date(intervention.client_signed_at.replace(' ', 'T')).toLocaleDateString('fr-FR') %></span>
+              <% } else { %>
+                <span class="badge bg-ink-100 text-ink-500">En attente de signature</span>
+              <% } %>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <form action="/interventions/<%= intervention.id %>/share" method="post">
+                <button type="submit" class="btn-secondary">Régénérer le lien</button>
+              </form>
+              <form action="/interventions/<%= intervention.id %>/share/revoke" method="post" data-confirm="Révoquer ce lien ? Il ne sera plus accessible.">
+                <button type="submit" class="btn-ghost text-red-600 hover:bg-red-50">Révoquer</button>
+              </form>
+            </div>
+          <% } else { %>
+            <form action="/interventions/<%= intervention.id %>/share" method="post" class="mt-4">
+              <button type="submit" class="btn-accent">Générer un lien client</button>
+            </form>
+          <% } %>
+        </div>
+      <% } %>
     </div>
 
     <p class="mt-6 text-xs text-ink-400">
