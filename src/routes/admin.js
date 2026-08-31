@@ -1,7 +1,10 @@
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const users = require('../models/users');
 const settings = require('../db/settings');
 const { requireAdmin } = require('../middleware/auth');
+const { uploadLogo, brandingDir, LOGO_MIME_EXT } = require('../middleware/upload');
 
 const router = express.Router();
 
@@ -57,6 +60,34 @@ router.post('/admin/settings', (req, res) => {
   const { company_name, company_address, company_email, company_phone, company_website } = req.body;
   settings.setMany({ company_name, company_address, company_email, company_phone, company_website });
   req.flash('success', 'Paramètres enregistrés.');
+  res.redirect('/admin/settings');
+});
+
+function removeExistingLogoFiles() {
+  for (const ext of Object.values(LOGO_MIME_EXT)) {
+    const p = path.join(brandingDir, `company-logo${ext}`);
+    if (fs.existsSync(p)) fs.unlinkSync(p);
+  }
+}
+
+router.post('/admin/settings/logo', uploadLogo, (req, res) => {
+  if (!req.file) {
+    req.flash('error', 'Merci de sélectionner un fichier.');
+    return res.redirect('/admin/settings');
+  }
+  const ext = LOGO_MIME_EXT[req.file.mimetype];
+  removeExistingLogoFiles();
+  const filename = `company-logo${ext}`;
+  fs.writeFileSync(path.join(brandingDir, filename), req.file.buffer);
+  settings.setMany({ company_logo_filename: filename, company_logo_mime: req.file.mimetype });
+  req.flash('success', 'Logo mis à jour. Il est désormais utilisé sur le site et dans les PDF.');
+  res.redirect('/admin/settings');
+});
+
+router.post('/admin/settings/logo/remove', (req, res) => {
+  removeExistingLogoFiles();
+  settings.setMany({ company_logo_filename: '', company_logo_mime: '' });
+  req.flash('success', 'Logo retiré.');
   res.redirect('/admin/settings');
 });
 

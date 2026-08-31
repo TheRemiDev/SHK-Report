@@ -36,7 +36,7 @@ const {
 function drawCover(doc, record, company) {
   // Bandeau supérieur sombre
   doc.rect(0, 0, PAGE.width, 190).fill(INK);
-  drawLogo(doc, MARGIN_X, 58, 240, '#FFFFFF');
+  drawLogo(doc, MARGIN_X, 48, { maxWidth: 240, maxHeight: 80, dark: true });
 
   doc
     .font('Helvetica')

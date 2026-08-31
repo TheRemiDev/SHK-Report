@@ -1,23 +1,32 @@
 <%
-  // locals attendus : className (obligatoire), variant ('compact' par défaut | 'full')
-  const _variant = typeof variant !== 'undefined' ? variant : 'compact';
+  // locals attendus :
+  //   size  : 'sm' | 'md' | 'lg' | 'xl' (défaut 'md') — hauteur du logo / taille du texte de repli
+  //   dark  : true si affiché sur un fond sombre (défaut false)
+  //   extraClass : classes additionnelles (marges, etc.)
+  const _size = typeof size !== 'undefined' ? size : 'md';
+  const _dark = typeof dark !== 'undefined' ? !!dark : false;
+  const _extra = typeof extraClass !== 'undefined' ? extraClass : '';
+  const _logoUrl = typeof companyLogoUrl !== 'undefined' ? companyLogoUrl : null;
+  const _name = typeof companyName !== 'undefined' ? companyName : 'Shiftek Hosting';
+
+  const SIZES = {
+    sm: { img: 'h-7', text: 'text-base' },
+    md: { img: 'h-8', text: 'text-lg' },
+    lg: { img: 'h-9', text: 'text-xl' },
+    xl: { img: 'h-16', text: 'text-4xl' },
+  };
+  const _s = SIZES[_size] || SIZES.md;
 %>
-<% if (_variant === 'full') { %>
-<svg viewBox="0 15 943.5 348" class="<%= className %>" aria-hidden="true">
-  <g fill="currentColor">
-    <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" transform="translate(0,15) scale(1.15)" />
-    <text x="245" y="185" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="100">SHIFTEK</text>
-    <text x="700" y="112" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="20">.FR</text>
-    <text x="248" y="225" font-family="Arial, Helvetica, sans-serif" font-weight="500" font-size="22" letter-spacing="9">HOSTING</text>
-    <polygon points="190,110 60,0 0,0 130,110 0,220 60,220" transform="translate(725,110) scale(1.15)" />
-  </g>
-</svg>
+<% if (_logoUrl) { %>
+  <% if (_dark) { %>
+    <span class="inline-flex items-center rounded-lg bg-white px-3 py-1.5 shadow-sm <%= _extra %>">
+      <img src="<%= _logoUrl %>" alt="<%= _name %>" class="<%= _s.img %> w-auto object-contain" />
+    </span>
+  <% } else { %>
+    <img src="<%= _logoUrl %>" alt="<%= _name %>" class="<%= _s.img %> w-auto object-contain <%= _extra %>" />
+  <% } %>
 <% } else { %>
-<svg viewBox="0 0 621 187" class="<%= className %>" aria-hidden="true">
-  <g fill="currentColor">
-    <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" transform="translate(0,0) scale(0.85)" />
-    <text x="182" y="152" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="88">SHIFTEK</text>
-    <text x="592" y="90" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="18">.FR</text>
-  </g>
-</svg>
+  <span class="inline-flex items-center font-extrabold leading-none tracking-tight <%= _s.text %> <%= _dark ? 'text-white' : 'text-ink-900' %> <%= _extra %>">
+    <%= _name %>
+  </span>
 <% } %>
