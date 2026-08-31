@@ -77,9 +77,27 @@ sudo systemctl status shk-report      # état du service
 sudo journalctl -u shk-report -f      # logs en direct
 ```
 
-Pour mettre à jour l'application après un `git pull`, relancez simplement
-`sudo ./install.sh` (le script est idempotent : il ne régénère ni le `.env`
-ni le port déjà attribués, et redémarre le service proprement).
+## Mettre à jour l'application
+
+`git pull` puis `systemctl restart shk-report` **ne suffit pas** : les
+feuilles de style compilées (`src/public/css/style.css`) ne sont jamais
+versionnées dans git, donc un simple redémarrage continue de servir l'ancien
+CSS tant qu'il n'est pas recompilé. Utilisez plutôt :
+
+```bash
+cd /chemin/vers/shk-report
+sudo ./update.sh
+```
+
+Ce script récupère les derniers commits, réinstalle les dépendances npm si
+besoin, **recompile les feuilles de style**, corrige les droits, puis
+redémarre le service. Les migrations de base de données s'appliquent
+automatiquement au démarrage de l'application (aucune action manuelle requise).
+
+`sudo ./install.sh` reste disponible et sûr à relancer (il ne redemande pas
+le domaine/l'email, ne régénère pas le `.env`, et ne redemande pas non plus
+de certificat SSL si un certificat valide existe déjà) : utilisez-le si vous
+devez reconfigurer Nginx, changer de domaine, ou si `update.sh` échoue.
 
 ## Personnaliser le logo
 
