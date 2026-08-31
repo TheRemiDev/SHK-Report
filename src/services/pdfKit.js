@@ -34,18 +34,15 @@ function parseSvgDims(raw) {
 
 /**
  * Dessine le logo réellement importé par l'entreprise (paramètres du site),
- * quel que soit son format (SVG, PNG, JPEG, WEBP) et sa colorimétrie propre —
- * on ne recrée jamais le logo, on affiche le fichier tel quel, mis à
- * l'échelle pour tenir dans la boîte [maxWidth, maxHeight]. Sur fond sombre
- * (`dark: true`), on l'entoure d'un fond blanc pour garantir sa lisibilité
- * quelles que soient ses couleurs. Sans logo importé, on replie sur le nom
- * de l'entreprise en texte.
+ * quel que soit son format (SVG, PNG, JPEG, WEBP) — on ne recrée jamais le
+ * logo, on affiche le fichier tel quel, mis à l'échelle pour tenir dans la
+ * boîte [maxWidth, maxHeight]. Sans logo importé, on replie sur le nom de
+ * l'entreprise en texte.
  */
-function drawLogo(doc, x, y, { maxWidth = 200, maxHeight = 60, dark = false } = {}) {
+function drawLogo(doc, x, y, { maxWidth = 200, maxHeight = 60 } = {}) {
   const filename = settings.get('company_logo_filename');
   const mime = settings.get('company_logo_mime');
   const companyName = settings.get('company_name') || 'Shiftek Hosting';
-  const pad = dark ? 9 : 0;
 
   if (filename) {
     const filePath = path.join(config.uploadDir, 'branding', filename);
@@ -54,23 +51,17 @@ function drawLogo(doc, x, y, { maxWidth = 200, maxHeight = 60, dark = false } = 
         if (mime === 'image/svg+xml') {
           const raw = fs.readFileSync(filePath, 'utf8');
           const dims = parseSvgDims(raw);
-          const scale = Math.min((maxWidth - pad * 2) / dims.w, (maxHeight - pad * 2) / dims.h);
-          const drawW = dims.w * scale;
-          const drawH = dims.h * scale;
-          if (dark) doc.roundedRect(x, y, drawW + pad * 2, drawH + pad * 2, 6).fill(WHITE);
+          const scale = Math.min(maxWidth / dims.w, maxHeight / dims.h);
           doc.save();
-          doc.translate(x + pad, y + pad).scale(scale);
+          doc.translate(x, y).scale(scale);
           SVGtoPDF(doc, raw, 0, 0, { width: dims.w, height: dims.h, assumePt: true });
           doc.restore();
           return;
         }
 
         const img = doc.openImage(filePath);
-        const scale = Math.min((maxWidth - pad * 2) / img.width, (maxHeight - pad * 2) / img.height);
-        const drawW = img.width * scale;
-        const drawH = img.height * scale;
-        if (dark) doc.roundedRect(x, y, drawW + pad * 2, drawH + pad * 2, 6).fill(WHITE);
-        doc.image(img, x + pad, y + pad, { width: drawW, height: drawH });
+        const scale = Math.min(maxWidth / img.width, maxHeight / img.height);
+        doc.image(img, x, y, { width: img.width * scale, height: img.height * scale });
         return;
       } catch {
         /* fichier illisible : repli sur le texte ci-dessous */
@@ -81,7 +72,7 @@ function drawLogo(doc, x, y, { maxWidth = 200, maxHeight = 60, dark = false } = 
   doc
     .font('Helvetica-Bold')
     .fontSize(Math.min(maxHeight * 0.5, 24))
-    .fillColor(dark ? WHITE : INK)
+    .fillColor(INK)
     .text(companyName, x, y + maxHeight / 2 - Math.min(maxHeight * 0.5, 24) / 2, {
       width: maxWidth,
       lineBreak: false,
@@ -115,7 +106,7 @@ function drawContentHeader(doc, reference, eyebrow) {
   const rightBoxX = PAGE.width - MARGIN_X - 260;
   const rightBoxW = 260;
 
-  drawLogo(doc, MARGIN_X, top, { maxWidth: 110, maxHeight: 26, dark: false });
+  drawLogo(doc, MARGIN_X, top, { maxWidth: 110, maxHeight: 26 });
 
   doc
     .font('Helvetica-Bold')

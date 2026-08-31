@@ -163,11 +163,15 @@ function revokeShareToken(id) {
 }
 
 function recordClientSignature(id, { name, signatureData }) {
+  // Une fois signé, le lien n'a plus besoin de rester ouvert longtemps : il
+  // expire 5 minutes après la signature si le client ne télécharge pas son
+  // PDF entre-temps (le téléchargement le révoque immédiatement de toute façon).
   db.prepare(
     `UPDATE interventions
      SET client_signature_name = COALESCE(NULLIF(@name, ''), client_signature_name),
          client_signature_data = @signatureData,
-         client_signed_at = datetime('now')
+         client_signed_at = datetime('now'),
+         share_expires_at = datetime('now', '+5 minutes')
      WHERE id = @id`
   ).run({ id, name: name || '', signatureData });
 }

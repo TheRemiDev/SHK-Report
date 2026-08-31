@@ -165,6 +165,21 @@
 
   setupModeToggle('datacenter-section', 'datacenter_mode', 'data-datacenter-panel');
 
+  // Pré-remplit l'adresse / le contact quand un DataCenter ou un client déjà
+  // enregistré est sélectionné, à partir des attributs data-* posés sur
+  // chaque <option> côté serveur.
+  function bindAutofillFromOption(selectId, targetId, dataKey) {
+    const select = document.getElementById(selectId);
+    const target = document.getElementById(targetId);
+    if (!select || !target) return;
+    select.addEventListener('change', function () {
+      const opt = select.options[select.selectedIndex];
+      target.value = (opt && opt.dataset[dataKey]) || '';
+    });
+  }
+  bindAutofillFromOption('datacenter_id', 'datacenter_address_registered', 'address');
+  bindAutofillFromOption('client_id', 'client_contact_registered', 'contact');
+
   const detoursList = document.getElementById('detours-list');
   const addDetourBtn = document.getElementById('add-detour');
   if (detoursList && addDetourBtn) {
