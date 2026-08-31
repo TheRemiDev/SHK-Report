@@ -56,6 +56,12 @@
             <p class="text-sm font-medium text-ink-900"><%= trip.return_address %></p>
           </div>
         <% } %>
+        <% if (trip.return_date) { %>
+          <div>
+            <p class="field-label">Date de retour</p>
+            <p class="text-sm font-medium text-ink-900"><%= new Date(trip.return_date + 'T00:00:00').toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) %></p>
+          </div>
+        <% } %>
         <% if (detours.length) { %>
           <div>
             <p class="field-label">Détours</p>

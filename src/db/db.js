@@ -43,6 +43,7 @@ function runIncrementalMigrations() {
   ensureColumn('interventions', 'client_signed_at', 'TEXT');
   ensureColumn('interventions', 'datacenter_id', 'INTEGER REFERENCES datacenters(id)');
   ensureColumn('trip_logs', 'return_address', 'TEXT');
+  ensureColumn('trip_logs', 'return_date', 'TEXT');
   ensureColumn('trip_logs', 'photos', "TEXT NOT NULL DEFAULT '[]'");
 
   db.exec(

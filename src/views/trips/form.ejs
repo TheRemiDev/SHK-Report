@@ -52,14 +52,22 @@
             </label>
           </div>
 
-          <div class="mt-3 <%= tripMode === 'aller_retour' ? '' : 'hidden' %>" data-trip-panel="aller_retour">
-            <label class="field-label" for="return_address">Adresse de retour</label>
-            <div class="flex gap-2">
-              <input class="field-input" type="text" id="return_address" name="return_address" <%= tripMode === 'aller_retour' ? '' : 'disabled' %>
-                value="<%= trip ? (trip.return_address || '') : '' %>" placeholder="Ex. 6 Rue Ar Prat, 29760 Penmarch" />
-              <button type="button" id="copy-departure-address" class="btn-secondary whitespace-nowrap">Identique au départ</button>
+          <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 <%= tripMode === 'aller_retour' ? '' : 'hidden' %>" data-trip-panel="aller_retour">
+            <div>
+              <label class="field-label" for="return_address">Adresse de retour</label>
+              <div class="flex gap-2">
+                <input class="field-input" type="text" id="return_address" name="return_address" <%= tripMode === 'aller_retour' ? '' : 'disabled' %>
+                  value="<%= trip ? (trip.return_address || '') : '' %>" placeholder="Ex. 6 Rue Ar Prat, 29760 Penmarch" />
+                <button type="button" id="copy-departure-address" class="btn-secondary whitespace-nowrap">Identique au départ</button>
+              </div>
+              <p class="mt-1 text-xs text-ink-400">Renseignez-la si le retour ne se fait pas vers l’adresse de départ.</p>
             </div>
-            <p class="mt-1 text-xs text-ink-400">Renseignez-la si le retour ne se fait pas vers l’adresse de départ.</p>
+            <div>
+              <label class="field-label" for="return_date">Date de retour (optionnel)</label>
+              <input class="field-input" type="date" id="return_date" name="return_date" <%= tripMode === 'aller_retour' ? '' : 'disabled' %>
+                value="<%= trip ? (trip.return_date || '') : '' %>" />
+              <p class="mt-1 text-xs text-ink-400">Si le retour a lieu un autre jour que le départ.</p>
+            </div>
           </div>
         </div>
 

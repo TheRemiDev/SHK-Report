@@ -11,7 +11,8 @@ const router = express.Router();
 function normalizeTripFields(body) {
   const isRoundTrip = body.trip_mode === 'aller_retour';
   const returnAddress = isRoundTrip ? (body.return_address || '').trim() : '';
-  return { return_address: returnAddress || null };
+  const returnDate = isRoundTrip ? (body.return_date || '').trim() : '';
+  return { return_address: returnAddress || null, return_date: returnDate || null };
 }
 
 router.get('/trips', (req, res) => {

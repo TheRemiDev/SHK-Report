@@ -20,7 +20,7 @@ const {
   drawSignatureBox,
   drawPhotoGrid,
 } = require('./pdfKit');
-const { formatDateFr, formatDateTimeFr } = require('./pdfLabels');
+const { formatDateFr } = require('./pdfLabels');
 
 // Le PDF utilise la police standard Helvetica (encodage WinAnsi) : l'espace
 // insécable fine (U+202F) que toLocaleString('fr-FR') utilise comme séparateur
@@ -68,7 +68,7 @@ function drawCover(doc, trip, company, detours) {
   doc.font('Helvetica-Bold').fontSize(10).fillColor(TEAL).text('RÉFÉRENCE', MARGIN_X, 236);
   doc.font('Helvetica-Bold').fontSize(15).fillColor(INK).text(trip.reference, MARGIN_X, 249);
 
-  const cardY = 292;
+  const cardY = 276;
   let cardH = 210;
   if (trip.return_address) cardH += 42;
   if (detours.length) cardH += 42;
@@ -89,6 +89,7 @@ function drawCover(doc, trip, company, detours) {
 
   if (trip.return_address) {
     infoRow(doc, col1, ry, colW, 'Retour', trip.return_address);
+    infoRow(doc, col2, ry, colW, 'Date de retour', trip.return_date ? formatDateFr(trip.return_date) : '—');
     ry += rowGap;
   }
 
@@ -105,24 +106,14 @@ function drawCover(doc, trip, company, detours) {
   ry += rowGap;
   infoRow(doc, col1, ry, PAGE.width - MARGIN_X * 2 - 48, 'Motif', trip.purpose);
 
-  doc.y = cardY + cardH + 26;
-  doc
-    .font('Helvetica')
-    .fontSize(9)
-    .fillColor(SLATE)
-    .text(
-      `Document généré le ${formatDateTimeFr(new Date().toISOString())} par ${company.company_name}.`,
-      MARGIN_X,
-      doc.y,
-      { width: PAGE.width - MARGIN_X * 2 }
-    );
+  doc.y = cardY + cardH + 12;
 }
 
 function drawSignature(doc, trip) {
   sectionTitle(doc, 'Signature');
-  ensureSpace(doc, 170);
+  ensureSpace(doc, 150);
   const boxW = (PAGE.width - MARGIN_X * 2 - 24) / 2;
-  const boxH = 150;
+  const boxH = 130;
   const y = doc.y + 4;
 
   drawSignatureBox(doc, {
@@ -159,10 +150,13 @@ async function buildTripPdf(trip, outputStream) {
 
   drawCover(doc, trip, company, detours);
 
+  // Contrairement au rapport d'intervention (généralement long), une fiche
+  // de route tient presque toujours sur une seule page : on continue donc
+  // directement sous la page de garde plutôt que de forcer une nouvelle
+  // page. Si le contenu déborde malgré tout, `ensureSpace` déclenchera un
+  // saut de page normal, et l'en-tête compact s'affichera dessus.
   const eyebrow = 'FICHE DE ROUTE';
-  doc.addPage();
   doc.on('pageAdded', () => drawContentHeader(doc, trip.reference, eyebrow));
-  drawContentHeader(doc, trip.reference, eyebrow);
 
   if (trip.notes) {
     sectionTitle(doc, 'Notes');
