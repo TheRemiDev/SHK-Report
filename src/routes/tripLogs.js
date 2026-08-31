@@ -5,6 +5,12 @@ const { buildTripPdf } = require('../services/tripPdfService');
 
 const router = express.Router();
 
+function normalizeTripFields(body) {
+  const isRoundTrip = body.trip_mode === 'aller_retour';
+  const returnAddress = isRoundTrip ? (body.return_address || '').trim() : '';
+  return { return_address: returnAddress || null };
+}
+
 router.get('/trips', (req, res) => {
   const { q, dateFrom, dateTo, page } = req.query;
   const result = tripLogs.search({ q, dateFrom, dateTo, page: parseInt(page, 10) || 1, pageSize: 15 });
@@ -25,7 +31,7 @@ router.get('/trips/new', (req, res) => {
 router.post('/trips', (req, res) => {
   try {
     const detours = [].concat(req.body.detour || []).filter((d) => d && d.trim());
-    const data = { ...req.body, detours: JSON.stringify(detours) };
+    const data = { ...req.body, detours: JSON.stringify(detours), ...normalizeTripFields(req.body) };
     const record = tripLogs.create(data, req.session.user.id);
     req.flash('success', `Fiche de route ${record.reference} créée.`);
     res.redirect(`/trips/${record.id}`);
@@ -53,7 +59,7 @@ router.post('/trips/:id', (req, res) => {
   if (!trip) return res.status(404).render('errors/404', { title: 'Introuvable' });
   try {
     const detours = [].concat(req.body.detour || []).filter((d) => d && d.trim());
-    const data = { ...req.body, detours: JSON.stringify(detours) };
+    const data = { ...req.body, detours: JSON.stringify(detours), ...normalizeTripFields(req.body) };
     tripLogs.update(trip.id, data);
     req.flash('success', 'Fiche de route mise à jour.');
     res.redirect(`/trips/${trip.id}`);

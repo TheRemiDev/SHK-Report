@@ -164,6 +164,16 @@
   });
 
   setupModeToggle('datacenter-section', 'datacenter_mode', 'data-datacenter-panel');
+  setupModeToggle('trip-mode-section', 'trip_mode', 'data-trip-panel');
+
+  const copyDepartureBtn = document.getElementById('copy-departure-address');
+  if (copyDepartureBtn) {
+    copyDepartureBtn.addEventListener('click', function () {
+      const departure = document.getElementById('departure_address');
+      const returnAddress = document.getElementById('return_address');
+      if (departure && returnAddress) returnAddress.value = departure.value;
+    });
+  }
 
   // Pré-remplit l'adresse / le contact quand un DataCenter ou un client déjà
   // enregistré est sélectionné, à partir des attributs data-* posés sur

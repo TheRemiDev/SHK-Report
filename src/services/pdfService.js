@@ -38,16 +38,19 @@ function drawCover(doc, record, company) {
   // couleur, un fond clair garantit sa lisibilité sans avoir à l'entourer.
   doc.rect(0, 0, PAGE.width, 190).fill(LIGHT);
   doc.moveTo(0, 190).lineTo(PAGE.width, 190).lineWidth(2).strokeColor(TEAL).stroke();
-  drawLogo(doc, MARGIN_X, 36, { maxWidth: 270, maxHeight: 108 });
+  drawLogo(doc, MARGIN_X, 40, { maxWidth: 250, maxHeight: 100 });
 
-  doc
-    .font('Helvetica')
-    .fontSize(9.5)
-    .fillColor(SLATE)
-    .text(company.company_website || 'shiftek.fr', PAGE.width - MARGIN_X - 200, 44, {
-      width: 200,
-      align: 'right',
-    });
+  const infoLines = [
+    company.company_address,
+    [company.company_phone, company.company_email].filter(Boolean).join('  ·  '),
+    company.company_website,
+  ].filter(Boolean);
+  let infoY = 40;
+  doc.font('Helvetica').fontSize(9).fillColor(SLATE);
+  infoLines.forEach((line) => {
+    doc.text(line, PAGE.width - MARGIN_X - 220, infoY, { width: 220, align: 'right' });
+    infoY += 13;
+  });
 
   // Titre
   doc

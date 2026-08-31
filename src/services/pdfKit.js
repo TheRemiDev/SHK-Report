@@ -144,7 +144,7 @@ function drawFooter(doc, { company, pageLabel, cover = false }) {
 
   doc.moveTo(MARGIN_X, y).lineTo(PAGE.width - MARGIN_X, y).lineWidth(0.75).strokeColor(BORDER).stroke();
 
-  const left = [company.company_name, company.company_website, company.company_email]
+  const left = [company.company_name, company.company_phone, company.company_email, company.company_website]
     .filter(Boolean)
     .join('  •  ');
 
