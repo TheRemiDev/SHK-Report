@@ -68,7 +68,9 @@ function drawCover(doc, trip, company, detours) {
   doc.font('Helvetica-Bold').fontSize(15).fillColor(INK).text(trip.reference, MARGIN_X, 249);
 
   const cardY = 292;
-  const cardH = detours.length ? 250 : 210;
+  let cardH = 210;
+  if (trip.return_address) cardH += 42;
+  if (detours.length) cardH += 42;
   doc.roundedRect(MARGIN_X, cardY, PAGE.width - MARGIN_X * 2, cardH, 6).fillAndStroke(LIGHT, BORDER);
 
   const colW = (PAGE.width - MARGIN_X * 2 - 60) / 2;
@@ -83,6 +85,11 @@ function drawCover(doc, trip, company, detours) {
   infoRow(doc, col1, ry, colW, 'Départ', trip.departure_address);
   infoRow(doc, col2, ry, colW, 'Arrivée', trip.arrival_address);
   ry += rowGap;
+
+  if (trip.return_address) {
+    infoRow(doc, col1, ry, colW, 'Retour', trip.return_address);
+    ry += rowGap;
+  }
 
   if (detours.length) {
     // La flèche → (U+2192) n'existe pas dans l'encodage WinAnsi de la police

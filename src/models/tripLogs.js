@@ -5,6 +5,7 @@ const FIELDS = [
   'trip_date',
   'departure_address',
   'arrival_address',
+  'return_address',
   'detours',
   'purpose',
   'total_km',

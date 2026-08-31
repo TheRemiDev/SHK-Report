@@ -72,7 +72,7 @@
                 <a href="/trips/<%= t.id %>" class="font-semibold text-ink-900 hover:text-teal-600"><%= t.reference %></a>
               </td>
               <td class="px-4 py-3 text-ink-600">
-                <p class="max-w-xs truncate"><%= t.departure_address %> → <%= t.arrival_address %></p>
+                <p class="max-w-xs truncate"><%= t.departure_address %> → <%= t.arrival_address %><% if (t.return_address) { %> → <%= t.return_address %><% } %></p>
               </td>
               <td class="whitespace-nowrap px-4 py-3 text-ink-600"><%= t.technician_name %></td>
               <td class="whitespace-nowrap px-4 py-3 text-ink-600"><%= new Date(t.trip_date + 'T00:00:00').toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>

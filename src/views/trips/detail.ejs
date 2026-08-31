@@ -7,7 +7,9 @@
         <a href="/trips" class="btn-ghost !px-2 mt-1"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd"/></svg></a>
         <div>
           <h1 class="text-2xl font-bold text-ink-900"><%= trip.reference %></h1>
-          <p class="mt-1 text-sm text-ink-500"><%= trip.departure_address %> → <%= trip.arrival_address %></p>
+          <p class="mt-1 text-sm text-ink-500">
+            <%= trip.departure_address %> → <%= trip.arrival_address %><% if (trip.return_address) { %> → <%= trip.return_address %><% } %>
+          </p>
         </div>
       </div>
       <div class="flex flex-wrap gap-2">
@@ -48,6 +50,12 @@
           <p class="field-label">Arrivée</p>
           <p class="text-sm font-medium text-ink-900"><%= trip.arrival_address %></p>
         </div>
+        <% if (trip.return_address) { %>
+          <div>
+            <p class="field-label">Retour</p>
+            <p class="text-sm font-medium text-ink-900"><%= trip.return_address %></p>
+          </div>
+        <% } %>
         <% if (detours.length) { %>
           <div>
             <p class="field-label">Détours</p>
