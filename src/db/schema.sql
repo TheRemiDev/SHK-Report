@@ -60,3 +60,37 @@ CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT
 );
+
+CREATE TABLE IF NOT EXISTS clients (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  contact_name TEXT,
+  contact_email TEXT,
+  contact_phone TEXT,
+  address TEXT,
+  notes TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_clients_name ON clients(name);
+
+CREATE TABLE IF NOT EXISTS trip_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reference TEXT NOT NULL UNIQUE,
+  trip_date TEXT NOT NULL,
+  departure_address TEXT NOT NULL,
+  arrival_address TEXT NOT NULL,
+  detours TEXT NOT NULL DEFAULT '[]',
+  purpose TEXT,
+  total_km REAL,
+  total_amount REAL,
+  notes TEXT,
+  technician_name TEXT NOT NULL,
+  signature_data TEXT,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_trip_logs_date ON trip_logs(trip_date);

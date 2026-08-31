@@ -1,19 +1,15 @@
 <header class="sticky top-0 z-40 border-b border-ink-100 bg-white/90 backdrop-blur">
   <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-    <a href="/" class="flex items-center gap-2 text-ink-900">
-      <svg viewBox="0 0 950 220" class="h-6 w-auto text-ink-900" fill="currentColor" aria-hidden="true">
-        <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" />
-        <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" transform="translate(880,0) scale(-1,1)" />
-        <text x="205" y="140" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="88">SHIFTEK</text>
-        <text x="600" y="90" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="22">.FR</text>
-      </svg>
-      <span class="hidden text-xs font-semibold uppercase tracking-widest text-ink-300 sm:inline">Rapports</span>
+    <a href="/" class="flex items-center text-ink-900">
+      <%- include('logo-mark', { variant: 'compact', className: 'h-5 w-auto text-ink-900' }) %>
     </a>
 
-    <nav class="hidden items-center gap-1 md:flex">
-      <a href="/" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath === '/' ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Tableau de bord</a>
-      <a href="/interventions/new" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath === '/interventions/new' ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Nouveau rapport</a>
+    <nav class="hidden items-center gap-0.5 md:flex">
+      <a href="/" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath === '/' ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Interventions</a>
+      <a href="/trips" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath.startsWith('/trips') ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Fiches de route</a>
+      <a href="/clients" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath.startsWith('/clients') ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Clients</a>
       <% if (currentUser && currentUser.role === 'admin') { %>
+        <span class="mx-1 h-4 w-px bg-ink-100"></span>
         <a href="/admin/users" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath.startsWith('/admin/users') ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Utilisateurs</a>
         <a href="/admin/settings" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath.startsWith('/admin/settings') ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Paramètres</a>
       <% } %>
@@ -40,11 +36,12 @@
     </div>
   </div>
   <nav class="flex items-center gap-1 overflow-x-auto border-t border-ink-100 px-4 py-2 md:hidden">
-    <a href="/" class="rounded-lg px-3 py-1.5 text-sm font-medium <%= currentPath === '/' ? 'bg-ink-900 text-white' : 'text-ink-500' %>">Tableau de bord</a>
-    <a href="/interventions/new" class="rounded-lg px-3 py-1.5 text-sm font-medium <%= currentPath === '/interventions/new' ? 'bg-ink-900 text-white' : 'text-ink-500' %>">Nouveau</a>
+    <a href="/" class="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium <%= currentPath === '/' ? 'bg-ink-900 text-white' : 'text-ink-500' %>">Interventions</a>
+    <a href="/trips" class="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium <%= currentPath.startsWith('/trips') ? 'bg-ink-900 text-white' : 'text-ink-500' %>">Fiches de route</a>
+    <a href="/clients" class="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium <%= currentPath.startsWith('/clients') ? 'bg-ink-900 text-white' : 'text-ink-500' %>">Clients</a>
     <% if (currentUser && currentUser.role === 'admin') { %>
-      <a href="/admin/users" class="rounded-lg px-3 py-1.5 text-sm font-medium text-ink-500">Utilisateurs</a>
-      <a href="/admin/settings" class="rounded-lg px-3 py-1.5 text-sm font-medium text-ink-500">Paramètres</a>
+      <a href="/admin/users" class="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium text-ink-500">Utilisateurs</a>
+      <a href="/admin/settings" class="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium text-ink-500">Paramètres</a>
     <% } %>
   </nav>
 </header>

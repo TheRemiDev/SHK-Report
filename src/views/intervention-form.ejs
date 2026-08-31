@@ -73,7 +73,7 @@
       </section>
 
       <section class="card p-6">
-        <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">DataCenter &amp; client</h2>
+        <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">DataCenter</h2>
         <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label class="field-label" for="datacenter_name">DataCenter</label>
@@ -96,18 +96,71 @@
             <input class="field-input" type="text" id="rack_reference" name="rack_reference"
               value="<%= intervention ? (intervention.rack_reference || '') : '' %>" placeholder="Ex. B12-R04" />
           </div>
+        </div>
+      </section>
+
+      <%
+        let clientMode = 'registered';
+        if (intervention && intervention.is_internal) clientMode = 'internal';
+        else if (intervention && !intervention.client_id) clientMode = 'manual';
+        const selectedClientId = preselectedClient ? preselectedClient.id : (intervention ? intervention.client_id : null);
+      %>
+      <section class="card p-6" id="client-section">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Client</h2>
+          <a href="/clients/new?returnTo=<%= encodeURIComponent(intervention ? '/interventions/' + intervention.id + '/edit' : '/interventions/new') %>" class="text-xs font-semibold text-teal-600 hover:text-teal-700">+ Nouveau client</a>
+        </div>
+
+        <div class="mt-4 inline-flex flex-wrap gap-1 rounded-lg border border-ink-100 bg-ink-50 p-1" id="client-mode-toggle">
+          <label class="cursor-pointer">
+            <input type="radio" name="client_mode" value="registered" class="peer sr-only" <%= clientMode === 'registered' ? 'checked' : '' %> />
+            <span class="block rounded-md px-3 py-1.5 text-sm font-medium text-ink-500 transition peer-checked:bg-white peer-checked:text-ink-900 peer-checked:shadow-sm">Client enregistré</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="client_mode" value="manual" class="peer sr-only" <%= clientMode === 'manual' ? 'checked' : '' %> />
+            <span class="block rounded-md px-3 py-1.5 text-sm font-medium text-ink-500 transition peer-checked:bg-white peer-checked:text-ink-900 peer-checked:shadow-sm">Client ponctuel</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="client_mode" value="internal" class="peer sr-only" <%= clientMode === 'internal' ? 'checked' : '' %> />
+            <span class="block rounded-md px-3 py-1.5 text-sm font-medium text-ink-500 transition peer-checked:bg-white peer-checked:text-ink-900 peer-checked:shadow-sm">Intervention interne</span>
+          </label>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 <%= clientMode === 'registered' ? '' : 'hidden' %>" data-client-panel="registered">
           <div>
-            <label class="field-label" for="client_name">Client</label>
-            <input class="field-input" list="clients" type="text" id="client_name" name="client_name" required
-              value="<%= intervention ? intervention.client_name : '' %>" />
-            <datalist id="clients"><% clients.forEach(function (c) { %><option value="<%= c %>"></option><% }) %></datalist>
+            <label class="field-label" for="client_id">Client</label>
+            <select class="field-select" id="client_id" name="client_id" <%= clientMode === 'registered' ? '' : 'disabled' %>>
+              <option value="">— Sélectionner un client —</option>
+              <% clientsList.forEach(function (c) { %>
+                <option value="<%= c.id %>" <%= String(selectedClientId) === String(c.id) ? 'selected' : '' %>><%= c.name %></option>
+              <% }) %>
+            </select>
           </div>
           <div>
-            <label class="field-label" for="client_contact">Contact client</label>
-            <input class="field-input" type="text" id="client_contact" name="client_contact"
-              value="<%= intervention ? (intervention.client_contact || '') : '' %>" placeholder="Nom — fonction" />
+            <label class="field-label" for="client_contact_registered">Contact (optionnel)</label>
+            <input class="field-input" type="text" id="client_contact_registered" name="client_contact" <%= clientMode === 'registered' ? '' : 'disabled' %>
+              value="<%= intervention && intervention.client_id ? (intervention.client_contact || '') : '' %>" placeholder="Nom — fonction" />
           </div>
         </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 <%= clientMode === 'manual' ? '' : 'hidden' %>" data-client-panel="manual">
+          <div>
+            <label class="field-label" for="client_name_manual">Nom du client</label>
+            <input class="field-input" type="text" id="client_name_manual" name="client_name" <%= clientMode === 'manual' ? '' : 'disabled' %>
+              value="<%= intervention && !intervention.client_id && !intervention.is_internal ? intervention.client_name : '' %>" placeholder="Ex. ACME Corp" />
+          </div>
+          <div>
+            <label class="field-label" for="client_contact_manual">Contact</label>
+            <input class="field-input" type="text" id="client_contact_manual" name="client_contact" <%= clientMode === 'manual' ? '' : 'disabled' %>
+              value="<%= intervention && !intervention.client_id && !intervention.is_internal ? (intervention.client_contact || '') : '' %>" placeholder="Nom — fonction" />
+          </div>
+        </div>
+
+        <div class="mt-4 rounded-lg border border-dashed border-ink-200 bg-ink-50 px-4 py-3 text-sm text-ink-500 <%= clientMode === 'internal' ? '' : 'hidden' %>" data-client-panel="internal">
+          Intervention sans client — maintenance, tests ou travaux internes ShifTek Hosting. Aucune information client ne sera demandée ni affichée sur le rapport.
+        </div>
+
+        <input type="checkbox" name="is_internal" id="is_internal_flag" class="hidden" <%= clientMode === 'internal' ? 'checked' : '' %> />
       </section>
 
       <section class="card p-6">
@@ -189,12 +242,13 @@
             <button type="button" class="btn-secondary mt-2 !py-1.5 signature-clear">Effacer</button>
             <input type="hidden" name="technician_signature_data" value="<%= intervention ? (intervention.technician_signature_data || '') : '' %>" />
           </div>
-          <div>
+          <div id="client-signature-block" class="<%= clientMode === 'internal' ? 'hidden' : '' %>">
             <label class="field-label" for="client_signature_name">Nom du représentant client</label>
-            <input class="field-input" type="text" id="client_signature_name" name="client_signature_name"
+            <input class="field-input" type="text" id="client_signature_name" name="client_signature_name" <%= clientMode === 'internal' ? 'disabled' : '' %>
               value="<%= intervention ? (intervention.client_signature_name || '') : '' %>" />
             <label class="field-label mt-3">Signature client</label>
-            <div class="signature-pad rounded-xl border border-dashed border-ink-200 bg-ink-50" data-target="client_signature_data">
+            <p class="text-xs text-ink-400">Sur place uniquement. Le client peut aussi signer à distance via le lien généré après création du rapport.</p>
+            <div class="signature-pad mt-1.5 rounded-xl border border-dashed border-ink-200 bg-ink-50" data-target="client_signature_data">
               <canvas class="h-40 w-full cursor-crosshair rounded-xl bg-white" width="500" height="220"></canvas>
             </div>
             <button type="button" class="btn-secondary mt-2 !py-1.5 signature-clear">Effacer</button>

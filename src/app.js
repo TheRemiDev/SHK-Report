@@ -11,6 +11,9 @@ const { attachUser } = require('./middleware/auth');
 const authRoutes = require('./routes/auth');
 const interventionsRoutes = require('./routes/interventions');
 const adminRoutes = require('./routes/admin');
+const clientsRoutes = require('./routes/clients');
+const shareRoutes = require('./routes/share');
+const tripLogsRoutes = require('./routes/tripLogs');
 
 const SqliteStore = require('better-sqlite3-session-store')(session);
 
@@ -59,10 +62,13 @@ app.use((req, res, next) => {
 });
 
 app.use('/', authRoutes);
+app.use('/', shareRoutes);
 
 const { requireAuth } = require('./middleware/auth');
 app.use('/', requireAuth, interventionsRoutes);
 app.use('/', requireAuth, adminRoutes);
+app.use('/', requireAuth, clientsRoutes);
+app.use('/', requireAuth, tripLogsRoutes);
 
 app.use((req, res) => {
   res.status(404).render('errors/404', { title: 'Page introuvable' });
