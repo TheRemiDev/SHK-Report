@@ -12,6 +12,7 @@ const authRoutes = require('./routes/auth');
 const interventionsRoutes = require('./routes/interventions');
 const adminRoutes = require('./routes/admin');
 const clientsRoutes = require('./routes/clients');
+const datacentersRoutes = require('./routes/datacenters');
 const shareRoutes = require('./routes/share');
 const tripLogsRoutes = require('./routes/tripLogs');
 
@@ -68,6 +69,7 @@ const { requireAuth } = require('./middleware/auth');
 app.use('/', requireAuth, interventionsRoutes);
 app.use('/', requireAuth, adminRoutes);
 app.use('/', requireAuth, clientsRoutes);
+app.use('/', requireAuth, datacentersRoutes);
 app.use('/', requireAuth, tripLogsRoutes);
 
 app.use((req, res) => {

@@ -1,0 +1,55 @@
+<%- include('../partials/head') %>
+  <%- include('../partials/nav') %>
+
+  <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-ink-900">DataCenters</h1>
+        <p class="mt-1 text-sm text-ink-400">Base de connaissance utilisée lors de la création des rapports.</p>
+      </div>
+      <a href="/datacenters/new" class="btn-accent">
+        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+        Nouveau DataCenter
+      </a>
+    </div>
+
+    <%- include('../partials/flash') %>
+
+    <form method="get" action="/datacenters" class="mt-6">
+      <input class="field-input max-w-sm" type="text" name="q" value="<%= q %>" placeholder="Rechercher un DataCenter…" />
+    </form>
+
+    <div class="table-shell mt-4">
+      <table class="min-w-full divide-y divide-ink-100 text-sm">
+        <thead class="bg-ink-50">
+          <tr class="text-left text-xs font-semibold uppercase tracking-wide text-ink-400">
+            <th class="px-4 py-3">DataCenter</th>
+            <th class="px-4 py-3">Adresse</th>
+            <th class="px-4 py-3">Rapports</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-ink-100">
+          <% if (!datacenters.length) { %>
+            <tr><td colspan="4" class="px-4 py-10 text-center text-sm text-ink-400">Aucun DataCenter enregistré pour le moment.</td></tr>
+          <% } %>
+          <% datacenters.forEach(function (d) { %>
+            <tr class="hover:bg-ink-50/60">
+              <td class="px-4 py-3 font-semibold text-ink-900"><%= d.name %></td>
+              <td class="px-4 py-3 text-ink-600"><%= d.address || '—' %></td>
+              <td class="px-4 py-3 text-ink-600"><%= d.interventionCount %></td>
+              <td class="px-4 py-3 text-right">
+                <a href="/datacenters/<%= d.id %>/edit" class="btn-ghost !px-2 !py-1.5">Modifier</a>
+                <% if (currentUser.role === 'admin') { %>
+                  <form action="/datacenters/<%= d.id %>/delete" method="post" class="inline" data-confirm="Supprimer ce DataCenter ?">
+                    <button type="submit" class="btn-ghost !px-2 !py-1.5 text-red-600 hover:bg-red-50">Supprimer</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+<%- include('../partials/foot') %>

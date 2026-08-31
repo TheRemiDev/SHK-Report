@@ -1,7 +1,7 @@
 # SHK-Report
 
 Application de gestion et de génération des **rapports d'intervention DataCenter**
-de ShifTek Hosting : création des rapports, historique consultable et filtrable,
+de Shiftek Hosting : création des rapports, historique consultable et filtrable,
 export PDF professionnel avec logo et signatures.
 
 ## Fonctionnalités
@@ -21,7 +21,7 @@ export PDF professionnel avec logo et signatures.
 - Référence automatique et unique par rapport (`SHK-2026-0001`, ...).
 - Tableau de bord avec recherche et filtres (statut, type, DataCenter, client, dates).
 - Export PDF stylé (page de garde, en-têtes/pieds de page, photos, signatures)
-  généré côté serveur avec le logo ShifTek Hosting.
+  généré côté serveur avec le logo Shiftek Hosting.
 - Fiches de route : suivi des déplacements (adresses de départ/arrivée, détours,
   kilomètres parcourus, montant des frais), avec signature et export PDF dédié.
 - Panneau d'administration : gestion des utilisateurs et des informations
@@ -59,7 +59,7 @@ Le script demandera (ou accepte en options) :
 sudo ./install.sh \
   --domain rapports.shiftek.fr \
   --email admin@shiftek.fr \
-  --company-name "ShifTek Hosting" \
+  --company-name "Shiftek Hosting" \
   --admin-name "Rémi Vidon" \
   --admin-email contact@shiftek.fr \
   --admin-password 'MotDePasse-Solide-123'

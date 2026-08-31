@@ -6,7 +6,7 @@ const root = path.resolve(__dirname, '..', '..');
 module.exports = {
   port: parseInt(process.env.PORT, 10) || 3000,
   appDomain: process.env.APP_DOMAIN || 'localhost',
-  companyName: process.env.COMPANY_NAME || 'ShifTek Hosting',
+  companyName: process.env.COMPANY_NAME || 'Shiftek Hosting',
   sessionSecret: process.env.SESSION_SECRET || 'dev-secret-change-me',
   nodeEnv: process.env.NODE_ENV || 'development',
   dataDir: path.resolve(root, process.env.DATA_DIR || './data'),

@@ -36,7 +36,7 @@ const {
 function drawCover(doc, record, company) {
   // Bandeau supérieur sombre
   doc.rect(0, 0, PAGE.width, 190).fill(INK);
-  drawLogo(doc, MARGIN_X, 55, 300, '#FFFFFF');
+  drawLogo(doc, MARGIN_X, 58, 240, '#FFFFFF');
 
   doc
     .font('Helvetica')
@@ -141,7 +141,7 @@ function drawSignatures(doc, record) {
     width: boxW,
     height: boxH,
     y,
-    title: 'Technicien ShifTek',
+    title: 'Technicien Shiftek',
     name: record.technician_name,
     signatureData: record.technician_signature_data,
     dateLabel: `Date : ${formatDateFr(record.intervention_date)}`,

@@ -21,7 +21,7 @@
 <body class="min-h-screen bg-ink-100 font-sans text-ink-900 antialiased">
   <div class="mx-auto max-w-3xl px-4 py-10 sm:px-6">
     <div class="mb-6 flex items-center justify-between">
-      <%- include('partials/logo-mark', { variant: 'compact', className: 'h-5 w-auto text-ink-900' }) %>
+      <%- include('partials/logo-mark', { variant: 'compact', className: 'h-7 w-auto text-ink-900' }) %>
       <p class="text-xs text-ink-400">Document transmis par <%= company.company_name %></p>
     </div>
 
@@ -103,7 +103,7 @@
           <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Signatures</h2>
           <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="rounded-xl border border-ink-100 p-4">
-              <p class="text-xs font-semibold uppercase tracking-wide text-ink-400">Technicien ShifTek</p>
+              <p class="text-xs font-semibold uppercase tracking-wide text-ink-400">Technicien Shiftek</p>
               <% if (intervention.technician_signature_data) { %>
                 <img src="<%= intervention.technician_signature_data %>" class="mt-2 h-20" alt="Signature technicien" />
               <% } else { %>
@@ -130,6 +130,11 @@
             <svg class="h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/></svg>
             Document signé électroniquement. Merci.
           </div>
+          <a href="/share/<%= intervention.share_token %>/pdf" class="btn-accent mt-4">
+            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v7.19l2.72-2.72a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 111.06-1.06l2.72 2.72V3.75A.75.75 0 0110 3zM4 15.75A.75.75 0 014.75 15h10.5a.75.75 0 010 1.5H4.75a.75.75 0 01-.75-.75z" clip-rule="evenodd"/></svg>
+            Télécharger le PDF signé
+          </a>
+          <p class="mt-2 text-xs text-ink-400">Ce lien de consultation sera désactivé après le téléchargement.</p>
         <% } else { %>
           <div class="mt-6 rounded-xl border border-ink-100 bg-ink-50 p-5">
             <h3 class="text-sm font-semibold text-ink-900">Signer ce rapport</h3>
@@ -144,7 +149,7 @@
               <div>
                 <label class="field-label">Signature</label>
                 <div class="signature-pad rounded-xl border border-dashed border-ink-200 bg-white" data-target="signature">
-                  <canvas class="h-40 w-full cursor-crosshair rounded-xl bg-white" width="600" height="220"></canvas>
+                  <canvas class="h-40 w-full touch-none select-none cursor-crosshair rounded-xl bg-white" width="600" height="220"></canvas>
                 </div>
                 <button type="button" class="btn-secondary mt-2 !py-1.5 signature-clear">Effacer</button>
                 <input type="hidden" name="signature" value="" />

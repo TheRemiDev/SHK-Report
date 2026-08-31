@@ -11,7 +11,14 @@
 
     ctx.lineWidth = 2.2;
     ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.strokeStyle = '#0A0A0C';
+
+    // Empêche le navigateur de gérer le geste comme un scroll/zoom tactile :
+    // sans ça, dessiner au doigt fait défiler la page sur mobile au lieu de
+    // signer (la classe Tailwind `touch-none` fait déjà ceci en CSS, on le
+    // fixe aussi en JS par sécurité si ce style n'a pas pu charger).
+    canvas.style.touchAction = 'none';
 
     function pointerPos(evt) {
       const rect = canvas.getBoundingClientRect();
@@ -26,6 +33,13 @@
     function start(evt) {
       drawing = true;
       hasDrawn = true;
+      if (canvas.setPointerCapture) {
+        try {
+          canvas.setPointerCapture(evt.pointerId);
+        } catch {
+          /* ignoré si le pointeur n'est plus valide */
+        }
+      }
       const p = pointerPos(evt);
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
@@ -49,6 +63,7 @@
     canvas.addEventListener('pointerdown', start);
     canvas.addEventListener('pointermove', move);
     window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
     canvas.addEventListener('pointerleave', end);
 
     const clearBtn = container.parentElement.querySelector('.signature-clear');
@@ -107,41 +122,48 @@
     });
   });
 
-  const clientSection = document.getElementById('client-section');
-  if (clientSection) {
-    const radios = clientSection.querySelectorAll('input[name="client_mode"]');
-    const panels = clientSection.querySelectorAll('[data-client-panel]');
-    const internalFlag = document.getElementById('is_internal_flag');
+  function setupModeToggle(sectionId, radioName, panelAttr, onChange) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    const radios = section.querySelectorAll('input[name="' + radioName + '"]');
+    const panels = section.querySelectorAll('[' + panelAttr + ']');
 
-    function applyClientMode(mode) {
+    function apply(mode) {
       panels.forEach(function (panel) {
-        const active = panel.dataset.clientPanel === mode;
+        const active = panel.getAttribute(panelAttr) === mode;
         panel.classList.toggle('hidden', !active);
         panel.querySelectorAll('input, select, textarea').forEach(function (el) {
           el.disabled = !active;
         });
       });
-      if (internalFlag) internalFlag.checked = mode === 'internal';
-
-      const sigBlock = document.getElementById('client-signature-block');
-      if (sigBlock) {
-        const internal = mode === 'internal';
-        sigBlock.classList.toggle('hidden', internal);
-        sigBlock.querySelectorAll('input').forEach(function (el) {
-          el.disabled = internal;
-        });
-      }
+      if (onChange) onChange(mode);
     }
 
     radios.forEach(function (radio) {
       radio.addEventListener('change', function () {
-        if (radio.checked) applyClientMode(radio.value);
+        if (radio.checked) apply(radio.value);
       });
     });
 
-    const initial = clientSection.querySelector('input[name="client_mode"]:checked');
-    applyClientMode(initial ? initial.value : 'registered');
+    const initial = section.querySelector('input[name="' + radioName + '"]:checked');
+    apply(initial ? initial.value : radios[0] ? radios[0].value : '');
   }
+
+  setupModeToggle('client-section', 'client_mode', 'data-client-panel', function (mode) {
+    const internalFlag = document.getElementById('is_internal_flag');
+    if (internalFlag) internalFlag.checked = mode === 'internal';
+
+    const sigBlock = document.getElementById('client-signature-block');
+    if (sigBlock) {
+      const internal = mode === 'internal';
+      sigBlock.classList.toggle('hidden', internal);
+      sigBlock.querySelectorAll('input').forEach(function (el) {
+        el.disabled = internal;
+      });
+    }
+  });
+
+  setupModeToggle('datacenter-section', 'datacenter_mode', 'data-datacenter-panel');
 
   const detoursList = document.getElementById('detours-list');
   const addDetourBtn = document.getElementById('add-detour');

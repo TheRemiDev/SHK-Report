@@ -10,6 +10,7 @@ const FIELDS = [
   'status',
   'type',
   'priority',
+  'datacenter_id',
   'datacenter_name',
   'datacenter_address',
   'datacenter_room',

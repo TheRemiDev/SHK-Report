@@ -72,20 +72,59 @@
         </div>
       </section>
 
-      <section class="card p-6">
-        <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">DataCenter</h2>
+      <%
+        let datacenterMode = intervention && !intervention.datacenter_id ? 'manual' : 'registered';
+        const selectedDatacenterId = preselectedDatacenter ? preselectedDatacenter.id : (intervention ? intervention.datacenter_id : null);
+        if (preselectedDatacenter) datacenterMode = 'registered';
+      %>
+      <section class="card p-6" id="datacenter-section">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">DataCenter</h2>
+          <a href="/datacenters/new?returnTo=<%= encodeURIComponent(intervention ? '/interventions/' + intervention.id + '/edit' : '/interventions/new') %>" class="text-xs font-semibold text-teal-600 hover:text-teal-700">+ Nouveau DataCenter</a>
+        </div>
+
+        <div class="mt-4 inline-flex flex-wrap gap-1 rounded-lg border border-ink-100 bg-ink-50 p-1" id="datacenter-mode-toggle">
+          <label class="cursor-pointer">
+            <input type="radio" name="datacenter_mode" value="registered" class="peer sr-only" <%= datacenterMode === 'registered' ? 'checked' : '' %> />
+            <span class="block rounded-md px-3 py-1.5 text-sm font-medium text-ink-500 transition peer-checked:bg-white peer-checked:text-ink-900 peer-checked:shadow-sm">DataCenter enregistré</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="datacenter_mode" value="manual" class="peer sr-only" <%= datacenterMode === 'manual' ? 'checked' : '' %> />
+            <span class="block rounded-md px-3 py-1.5 text-sm font-medium text-ink-500 transition peer-checked:bg-white peer-checked:text-ink-900 peer-checked:shadow-sm">Autre / ponctuel</span>
+          </label>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 <%= datacenterMode === 'registered' ? '' : 'hidden' %>" data-datacenter-panel="registered">
+          <div>
+            <label class="field-label" for="datacenter_id">DataCenter</label>
+            <select class="field-select" id="datacenter_id" name="datacenter_id" <%= datacenterMode === 'registered' ? '' : 'disabled' %>>
+              <option value="">— Sélectionner un DataCenter —</option>
+              <% datacentersList.forEach(function (d) { %>
+                <option value="<%= d.id %>" <%= String(selectedDatacenterId) === String(d.id) ? 'selected' : '' %>><%= d.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="datacenter_address_registered">Adresse (optionnel)</label>
+            <input class="field-input" type="text" id="datacenter_address_registered" name="datacenter_address" <%= datacenterMode === 'registered' ? '' : 'disabled' %>
+              value="<%= intervention && intervention.datacenter_id ? (intervention.datacenter_address || '') : '' %>" />
+          </div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 <%= datacenterMode === 'manual' ? '' : 'hidden' %>" data-datacenter-panel="manual">
+          <div>
+            <label class="field-label" for="datacenter_name_manual">Nom du DataCenter</label>
+            <input class="field-input" type="text" id="datacenter_name_manual" name="datacenter_name" <%= datacenterMode === 'manual' ? '' : 'disabled' %>
+              value="<%= intervention && !intervention.datacenter_id ? intervention.datacenter_name : '' %>" placeholder="Ex. Equinix PA3" />
+          </div>
+          <div>
+            <label class="field-label" for="datacenter_address_manual">Adresse</label>
+            <input class="field-input" type="text" id="datacenter_address_manual" name="datacenter_address" <%= datacenterMode === 'manual' ? '' : 'disabled' %>
+              value="<%= intervention && !intervention.datacenter_id ? (intervention.datacenter_address || '') : '' %>" />
+          </div>
+        </div>
+
         <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label class="field-label" for="datacenter_name">DataCenter</label>
-            <input class="field-input" list="datacenters" type="text" id="datacenter_name" name="datacenter_name" required
-              value="<%= intervention ? intervention.datacenter_name : '' %>" placeholder="Ex. Equinix PA3" />
-            <datalist id="datacenters"><% datacenters.forEach(function (d) { %><option value="<%= d %>"></option><% }) %></datalist>
-          </div>
-          <div>
-            <label class="field-label" for="datacenter_address">Adresse</label>
-            <input class="field-input" type="text" id="datacenter_address" name="datacenter_address"
-              value="<%= intervention ? (intervention.datacenter_address || '') : '' %>" />
-          </div>
           <div>
             <label class="field-label" for="datacenter_room">Salle</label>
             <input class="field-input" type="text" id="datacenter_room" name="datacenter_room"
@@ -157,7 +196,7 @@
         </div>
 
         <div class="mt-4 rounded-lg border border-dashed border-ink-200 bg-ink-50 px-4 py-3 text-sm text-ink-500 <%= clientMode === 'internal' ? '' : 'hidden' %>" data-client-panel="internal">
-          Intervention sans client — maintenance, tests ou travaux internes ShifTek Hosting. Aucune information client ne sera demandée ni affichée sur le rapport.
+          Intervention sans client — maintenance, tests ou travaux internes Shiftek Hosting. Aucune information client ne sera demandée ni affichée sur le rapport.
         </div>
 
         <input type="checkbox" name="is_internal" id="is_internal_flag" class="hidden" <%= clientMode === 'internal' ? 'checked' : '' %> />
@@ -237,7 +276,7 @@
           <div>
             <label class="field-label">Signature technicien</label>
             <div class="signature-pad rounded-xl border border-dashed border-ink-200 bg-ink-50" data-target="technician_signature_data">
-              <canvas class="h-40 w-full cursor-crosshair rounded-xl bg-white" width="500" height="220"></canvas>
+              <canvas class="h-40 w-full touch-none select-none cursor-crosshair rounded-xl bg-white" width="500" height="220"></canvas>
             </div>
             <button type="button" class="btn-secondary mt-2 !py-1.5 signature-clear">Effacer</button>
             <input type="hidden" name="technician_signature_data" value="<%= intervention ? (intervention.technician_signature_data || '') : '' %>" />
@@ -249,7 +288,7 @@
             <label class="field-label mt-3">Signature client</label>
             <p class="text-xs text-ink-400">Sur place uniquement. Le client peut aussi signer à distance via le lien généré après création du rapport.</p>
             <div class="signature-pad mt-1.5 rounded-xl border border-dashed border-ink-200 bg-ink-50" data-target="client_signature_data">
-              <canvas class="h-40 w-full cursor-crosshair rounded-xl bg-white" width="500" height="220"></canvas>
+              <canvas class="h-40 w-full touch-none select-none cursor-crosshair rounded-xl bg-white" width="500" height="220"></canvas>
             </div>
             <button type="button" class="btn-secondary mt-2 !py-1.5 signature-clear">Effacer</button>
             <input type="hidden" name="client_signature_data" value="<%= intervention ? (intervention.client_signature_data || '') : '' %>" />

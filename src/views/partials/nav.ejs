@@ -1,13 +1,14 @@
 <header class="sticky top-0 z-40 border-b border-ink-100 bg-white/90 backdrop-blur">
   <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
     <a href="/" class="flex items-center text-ink-900">
-      <%- include('logo-mark', { variant: 'compact', className: 'h-5 w-auto text-ink-900' }) %>
+      <%- include('logo-mark', { variant: 'compact', className: 'h-8 w-auto text-ink-900' }) %>
     </a>
 
     <nav class="hidden items-center gap-0.5 md:flex">
       <a href="/" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath === '/' ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Interventions</a>
       <a href="/trips" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath.startsWith('/trips') ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Fiches de route</a>
       <a href="/clients" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath.startsWith('/clients') ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Clients</a>
+      <a href="/datacenters" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath.startsWith('/datacenters') ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">DataCenters</a>
       <% if (currentUser && currentUser.role === 'admin') { %>
         <span class="mx-1 h-4 w-px bg-ink-100"></span>
         <a href="/admin/users" class="rounded-lg px-3 py-2 text-sm font-medium <%= currentPath.startsWith('/admin/users') ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100' %>">Utilisateurs</a>
@@ -39,6 +40,7 @@
     <a href="/" class="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium <%= currentPath === '/' ? 'bg-ink-900 text-white' : 'text-ink-500' %>">Interventions</a>
     <a href="/trips" class="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium <%= currentPath.startsWith('/trips') ? 'bg-ink-900 text-white' : 'text-ink-500' %>">Fiches de route</a>
     <a href="/clients" class="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium <%= currentPath.startsWith('/clients') ? 'bg-ink-900 text-white' : 'text-ink-500' %>">Clients</a>
+    <a href="/datacenters" class="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium <%= currentPath.startsWith('/datacenters') ? 'bg-ink-900 text-white' : 'text-ink-500' %>">DataCenters</a>
     <% if (currentUser && currentUser.role === 'admin') { %>
       <a href="/admin/users" class="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium text-ink-500">Utilisateurs</a>
       <a href="/admin/settings" class="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium text-ink-500">Paramètres</a>

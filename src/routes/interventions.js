@@ -4,6 +4,7 @@ const path = require('path');
 const crypto = require('crypto');
 const interventions = require('../models/interventions');
 const clients = require('../models/clients');
+const datacenters = require('../models/datacenters');
 const { uploadPhotos, photosDir } = require('../middleware/upload');
 const { requireAdmin } = require('../middleware/auth');
 const { buildInterventionPdf } = require('../services/pdfService');
@@ -39,6 +40,26 @@ function normalizeClientFields(body) {
   };
 }
 
+function normalizeDatacenterFields(body) {
+  const datacenterId = body.datacenter_id ? parseInt(body.datacenter_id, 10) : null;
+  if (Number.isInteger(datacenterId)) {
+    const record = datacenters.findById(datacenterId);
+    if (record) {
+      return {
+        datacenter_id: record.id,
+        datacenter_name: record.name,
+        datacenter_address: body.datacenter_address || record.address || '',
+      };
+    }
+  }
+
+  return {
+    datacenter_id: null,
+    datacenter_name: body.datacenter_name || '',
+    datacenter_address: body.datacenter_address || '',
+  };
+}
+
 router.get('/', (req, res) => {
   const { q, status, type, datacenter, client, dateFrom, dateTo, sort, page } = req.query;
   const result = interventions.search({
@@ -69,12 +90,14 @@ router.get('/', (req, res) => {
 
 router.get('/interventions/new', (req, res) => {
   const preselectedClient = req.query.newClientId ? clients.findById(req.query.newClientId) : null;
+  const preselectedDatacenter = req.query.newDatacenterId ? datacenters.findById(req.query.newDatacenterId) : null;
   res.render('intervention-form', {
     title: 'Nouveau rapport d’intervention',
     intervention: null,
     preselectedClient,
+    preselectedDatacenter,
     clientsList: clients.list(),
-    datacenters: interventions.distinctValues('datacenter_name'),
+    datacentersList: datacenters.list(),
     technicians: interventions.distinctValues('technician_name'),
     STATUSES: interventions.STATUSES,
     TYPES: interventions.TYPES,
@@ -85,7 +108,12 @@ router.get('/interventions/new', (req, res) => {
 router.post('/interventions', uploadPhotos, (req, res) => {
   try {
     const photos = (req.files || []).map((f) => f.filename);
-    const data = { ...req.body, ...normalizeClientFields(req.body), photos: JSON.stringify(photos) };
+    const data = {
+      ...req.body,
+      ...normalizeClientFields(req.body),
+      ...normalizeDatacenterFields(req.body),
+      photos: JSON.stringify(photos),
+    };
     const record = interventions.create(data, req.session.user.id);
     req.flash('success', `Rapport ${record.reference} créé avec succès.`);
     res.redirect(`/interventions/${record.id}`);
@@ -114,9 +142,11 @@ router.get('/interventions/:id/edit', (req, res) => {
   res.render('intervention-form', {
     title: `Modifier ${record.reference}`,
     intervention: record,
+    photos: JSON.parse(record.photos || '[]'),
     preselectedClient: null,
+    preselectedDatacenter: null,
     clientsList: clients.list(),
-    datacenters: interventions.distinctValues('datacenter_name'),
+    datacentersList: datacenters.list(),
     technicians: interventions.distinctValues('technician_name'),
     STATUSES: interventions.STATUSES,
     TYPES: interventions.TYPES,
@@ -141,7 +171,12 @@ router.post('/interventions/:id', uploadPhotos, (req, res) => {
     const added = (req.files || []).map((f) => f.filename);
     const photos = [...kept, ...added];
 
-    const data = { ...req.body, ...normalizeClientFields(req.body), photos: JSON.stringify(photos) };
+    const data = {
+      ...req.body,
+      ...normalizeClientFields(req.body),
+      ...normalizeDatacenterFields(req.body),
+      photos: JSON.stringify(photos),
+    };
     interventions.update(req.params.id, data);
     req.flash('success', 'Rapport mis à jour.');
     res.redirect(`/interventions/${req.params.id}`);
