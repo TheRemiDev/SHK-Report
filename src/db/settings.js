@@ -6,6 +6,8 @@ const DEFAULTS = {
   company_email: '',
   company_phone: '',
   company_website: 'shiftek.fr',
+  company_logo_filename: '',
+  company_logo_mime: '',
 };
 
 function get(key) {

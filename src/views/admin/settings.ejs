@@ -36,10 +36,33 @@
     <div class="card mt-6 p-6">
       <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Logo</h2>
       <p class="mt-2 text-sm text-ink-500">
-        Le logo utilisé dans l’application et les PDF se trouve dans
-        <code class="rounded bg-ink-100 px-1.5 py-0.5 text-xs">src/public/assets/logo.svg</code>.
-        Remplacez ce fichier (en conservant le même nom et le même viewBox) pour appliquer votre propre logo partout automatiquement.
+        Le logo importé ici est utilisé tel quel, partout dans l’application et sur les documents PDF
+        (page de connexion, en-têtes, page de garde des rapports, favicon…), mis à l’échelle automatiquement selon le contexte.
       </p>
+
+      <div class="mt-5 flex flex-wrap items-center gap-6">
+        <div class="flex h-24 w-48 items-center justify-center rounded-xl border border-dashed border-ink-200 bg-ink-50 p-3">
+          <% if (companyLogoUrl) { %>
+            <img src="<%= companyLogoUrl %>" alt="Logo actuel" class="max-h-full max-w-full object-contain" />
+          <% } else { %>
+            <p class="text-center text-xs text-ink-400">Aucun logo importé pour l’instant</p>
+          <% } %>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <form action="/admin/settings/logo" method="post" enctype="multipart/form-data" class="flex flex-wrap items-center gap-3">
+            <input type="file" name="logo" accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml" required
+              class="text-sm text-ink-600 file:mr-3 file:rounded-lg file:border-0 file:bg-ink-900 file:px-3.5 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-ink-700" />
+            <button type="submit" class="btn-accent">Importer</button>
+          </form>
+          <% if (companyLogoUrl) { %>
+            <form action="/admin/settings/logo/remove" method="post" data-confirm="Retirer le logo actuel ?">
+              <button type="submit" class="btn-ghost !px-0 text-xs text-red-600 hover:bg-transparent hover:underline">Retirer le logo</button>
+            </form>
+          <% } %>
+          <p class="text-xs text-ink-400">PNG, JPEG, WEBP ou SVG — 4 Mo maximum.</p>
+        </div>
+      </div>
     </div>
   </main>
 <%- include('../partials/foot') %>

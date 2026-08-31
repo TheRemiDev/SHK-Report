@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="943.5" height="348" viewBox="0 15 943.5 348" role="img" aria-label="Shiftek Hosting">
-  <g fill="currentColor">
-    <polygon points="0,110 130,0 190,0 60,110 190,220 130,220" transform="translate(0,15) scale(1.15)" />
-    <text x="245" y="185" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="100">SHIFTEK</text>
-    <text x="700" y="112" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="20">.FR</text>
-    <text x="248" y="225" font-family="Arial, Helvetica, sans-serif" font-weight="500" font-size="22" letter-spacing="9">HOSTING</text>
-    <polygon points="190,110 60,0 0,0 130,110 0,220 60,220" transform="translate(725,110) scale(1.15)" />
-  </g>
-</svg>

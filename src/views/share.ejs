@@ -15,19 +15,23 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><%= title %> · <%= company.company_name %></title>
-  <link rel="icon" type="image/png" href="/assets/favicon.png" />
+  <% if (companyLogoUrl) { %>
+    <link rel="icon" type="<%= companyLogoMime %>" href="<%= companyLogoUrl %>" />
+  <% } else { %>
+    <link rel="icon" type="image/png" href="/assets/favicon.png" />
+  <% } %>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body class="min-h-screen bg-ink-100 font-sans text-ink-900 antialiased">
   <div class="mx-auto max-w-3xl px-4 py-10 sm:px-6">
     <div class="mb-6 flex items-center justify-between">
-      <%- include('partials/logo-mark', { variant: 'compact', className: 'h-7 w-auto text-ink-900' }) %>
+      <%- include('partials/logo-mark', { size: 'sm' }) %>
       <p class="text-xs text-ink-400">Document transmis par <%= company.company_name %></p>
     </div>
 
     <div class="overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-pop">
       <div class="bg-ink-900 px-8 py-10">
-        <%- include('partials/logo-mark', { variant: 'full', className: 'h-9 w-auto text-white' }) %>
+        <%- include('partials/logo-mark', { size: 'lg', dark: true }) %>
         <h1 class="mt-6 text-2xl font-bold text-white">Rapport d’intervention</h1>
         <p class="mt-1 text-sm text-ink-300"><%= intervention.title %></p>
         <div class="mt-4 flex flex-wrap items-center gap-2">

@@ -38,4 +38,35 @@ function uploadPhotos(req, res, next) {
   });
 }
 
-module.exports = { upload, uploadPhotos, photosDir };
+const brandingDir = path.join(config.uploadDir, 'branding');
+fs.mkdirSync(brandingDir, { recursive: true });
+
+const LOGO_MIME_EXT = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/webp': '.webp',
+  'image/svg+xml': '.svg',
+};
+
+const logoUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 4 * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, cb) => {
+    if (!LOGO_MIME_EXT[file.mimetype]) {
+      return cb(new Error('Format de logo non supporté (PNG, JPEG, WEBP ou SVG uniquement).'));
+    }
+    cb(null, true);
+  },
+});
+
+function uploadLogo(req, res, next) {
+  logoUpload.single('logo')(req, res, (err) => {
+    if (err) {
+      req.flash('error', err.message || "Échec de l'envoi du logo.");
+      return res.redirect(req.get('Referrer') || '/admin/settings');
+    }
+    next();
+  });
+}
+
+module.exports = { upload, uploadPhotos, photosDir, uploadLogo, brandingDir, LOGO_MIME_EXT };

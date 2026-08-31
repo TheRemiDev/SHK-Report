@@ -6,6 +6,7 @@ const helmet = require('helmet');
 
 const config = require('./config');
 const db = require('./db/db');
+const settings = require('./db/settings');
 const { attachUser } = require('./middleware/auth');
 
 const authRoutes = require('./routes/auth');
@@ -54,7 +55,10 @@ app.use(flash());
 app.use(attachUser);
 
 app.use((req, res, next) => {
-  res.locals.companyName = config.companyName;
+  const logoFilename = settings.get('company_logo_filename');
+  res.locals.companyName = settings.get('company_name') || config.companyName;
+  res.locals.companyLogoUrl = logoFilename ? `/uploads/branding/${logoFilename}` : null;
+  res.locals.companyLogoMime = logoFilename ? settings.get('company_logo_mime') : null;
   res.locals.appDomain = config.appDomain;
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
