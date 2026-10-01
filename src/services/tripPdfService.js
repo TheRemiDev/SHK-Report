@@ -69,17 +69,21 @@ function drawCover(doc, trip, company, detours) {
   doc.font('Helvetica-Bold').fontSize(15).fillColor(INK).text(trip.reference, MARGIN_X, 249);
 
   const cardY = 276;
-  let cardH = 210;
-  if (trip.vehicle_brand) cardH += 42;
-  if (trip.return_address) cardH += 42;
-  if (detours.length) cardH += 42;
+  const rowGap = 38;
+  // Les détours (liste jointe par « » ») peuvent s'étaler sur 2 lignes : on
+  // réserve un peu plus de place après cette ligne pour ne jamais chevaucher
+  // la ligne suivante.
+  const detourRowGap = 54;
+  let cardH = 192;
+  if (trip.vehicle_brand) cardH += rowGap;
+  if (trip.return_address) cardH += rowGap;
+  if (detours.length) cardH += detourRowGap;
   doc.roundedRect(MARGIN_X, cardY, PAGE.width - MARGIN_X * 2, cardH, 6).fillAndStroke(LIGHT, BORDER);
 
   const colW = (PAGE.width - MARGIN_X * 2 - 60) / 2;
   const col1 = MARGIN_X + 24;
   const col2 = MARGIN_X + 24 + colW + 12;
   let ry = cardY + 24;
-  const rowGap = 42;
 
   infoRow(doc, col1, ry, colW, 'Date', formatDateFr(trip.trip_date));
   infoRow(doc, col2, ry, colW, 'Technicien', trip.technician_name);
@@ -107,7 +111,7 @@ function drawCover(doc, trip, company, detours) {
     // standard Helvetica utilisée pour le PDF et s'affichait comme un
     // caractère parasite ; « » » (chevron), lui, en fait partie.
     infoRow(doc, col1, ry, PAGE.width - MARGIN_X * 2 - 48, 'Détours', detours.join('  »  '));
-    ry += rowGap;
+    ry += detourRowGap;
   }
 
   infoRow(doc, col1, ry, colW, 'Distance totale', formatKm(trip.total_km));
@@ -115,12 +119,12 @@ function drawCover(doc, trip, company, detours) {
   ry += rowGap;
   infoRow(doc, col1, ry, PAGE.width - MARGIN_X * 2 - 48, 'Motif', trip.purpose);
 
-  doc.y = cardY + cardH + 12;
+  doc.y = cardY + cardH + 10;
 }
 
 function drawSignature(doc, trip) {
   sectionTitle(doc, 'Signature');
-  ensureSpace(doc, 150);
+  ensureSpace(doc, 144);
   const boxW = (PAGE.width - MARGIN_X * 2 - 24) / 2;
   const boxH = 130;
   const y = doc.y + 4;
