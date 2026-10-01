@@ -1,0 +1,38 @@
+<%- include('../partials/head') %>
+  <%- include('../partials/nav') %>
+
+  <main class="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex items-center gap-3">
+      <a href="/vehicles" class="btn-ghost !px-2"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd"/></svg></a>
+      <h1 class="text-2xl font-bold text-ink-900"><%= vehicle ? 'Modifier le véhicule' : 'Nouveau véhicule' %></h1>
+    </div>
+
+    <%- include('../partials/flash') %>
+
+    <form method="post" action="<%= vehicle ? '/vehicles/' + vehicle.id : '/vehicles' %>" class="card mt-6 grid grid-cols-1 gap-4 p-6 sm:grid-cols-2">
+      <% if (typeof returnTo !== 'undefined' && returnTo) { %>
+        <input type="hidden" name="returnTo" value="<%= returnTo %>" />
+      <% } %>
+      <div>
+        <label class="field-label" for="brand">Marque</label>
+        <input class="field-input" type="text" id="brand" name="brand" required value="<%= vehicle ? vehicle.brand : '' %>" placeholder="Ex. Peugeot" />
+      </div>
+      <div>
+        <label class="field-label" for="model">Modèle</label>
+        <input class="field-input" type="text" id="model" name="model" value="<%= vehicle ? (vehicle.model || '') : '' %>" placeholder="Ex. 308" />
+      </div>
+      <div class="sm:col-span-2">
+        <label class="field-label" for="plate">Immatriculation</label>
+        <input class="field-input" type="text" id="plate" name="plate" required value="<%= vehicle ? vehicle.plate : '' %>" placeholder="Ex. AB-123-CD" />
+      </div>
+      <div class="sm:col-span-2">
+        <label class="field-label" for="notes">Notes internes</label>
+        <textarea class="field-textarea" id="notes" name="notes" rows="3"><%= vehicle ? (vehicle.notes || '') : '' %></textarea>
+      </div>
+      <div class="flex justify-end gap-3 sm:col-span-2">
+        <a href="/vehicles" class="btn-secondary">Annuler</a>
+        <button type="submit" class="btn-accent"><%= vehicle ? 'Enregistrer' : 'Créer le véhicule' %></button>
+      </div>
+    </form>
+  </main>
+<%- include('../partials/foot') %>

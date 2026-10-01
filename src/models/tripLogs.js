@@ -15,6 +15,10 @@ const FIELDS = [
   'technician_name',
   'signature_data',
   'photos',
+  'vehicle_id',
+  'vehicle_brand',
+  'vehicle_model',
+  'vehicle_plate',
 ];
 
 function toPayload(data) {

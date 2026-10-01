@@ -38,6 +38,13 @@
           <p class="field-label">Technicien</p>
           <p class="text-sm font-medium text-ink-900"><%= trip.technician_name %></p>
         </div>
+        <% if (trip.vehicle_brand) { %>
+          <div>
+            <p class="field-label">Véhicule</p>
+            <p class="text-sm font-medium text-ink-900"><%= trip.vehicle_brand %><%= trip.vehicle_model ? ' ' + trip.vehicle_model : '' %></p>
+            <% if (trip.vehicle_plate) { %><p class="text-xs text-ink-400"><%= trip.vehicle_plate %></p><% } %>
+          </div>
+        <% } %>
         <div>
           <p class="field-label">Motif</p>
           <p class="text-sm font-medium text-ink-900"><%= trip.purpose || '—' %></p>

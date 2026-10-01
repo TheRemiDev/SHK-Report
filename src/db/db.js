@@ -46,6 +46,24 @@ function runIncrementalMigrations() {
   ensureColumn('trip_logs', 'return_date', 'TEXT');
   ensureColumn('trip_logs', 'photos', "TEXT NOT NULL DEFAULT '[]'");
 
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS vehicles (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      brand TEXT NOT NULL,
+      model TEXT,
+      plate TEXT NOT NULL,
+      notes TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_vehicles_brand ON vehicles(brand)`);
+
+  ensureColumn('trip_logs', 'vehicle_id', 'INTEGER REFERENCES vehicles(id)');
+  ensureColumn('trip_logs', 'vehicle_brand', 'TEXT');
+  ensureColumn('trip_logs', 'vehicle_model', 'TEXT');
+  ensureColumn('trip_logs', 'vehicle_plate', 'TEXT');
+
   db.exec(
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_interventions_share_token ON interventions(share_token) WHERE share_token IS NOT NULL`
   );

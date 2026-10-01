@@ -70,6 +70,7 @@ function drawCover(doc, trip, company, detours) {
 
   const cardY = 276;
   let cardH = 210;
+  if (trip.vehicle_brand) cardH += 42;
   if (trip.return_address) cardH += 42;
   if (detours.length) cardH += 42;
   doc.roundedRect(MARGIN_X, cardY, PAGE.width - MARGIN_X * 2, cardH, 6).fillAndStroke(LIGHT, BORDER);
@@ -83,6 +84,14 @@ function drawCover(doc, trip, company, detours) {
   infoRow(doc, col1, ry, colW, 'Date', formatDateFr(trip.trip_date));
   infoRow(doc, col2, ry, colW, 'Technicien', trip.technician_name);
   ry += rowGap;
+
+  if (trip.vehicle_brand) {
+    const vehicleName = [trip.vehicle_brand, trip.vehicle_model].filter(Boolean).join(' ');
+    infoRow(doc, col1, ry, colW, 'Véhicule', vehicleName);
+    infoRow(doc, col2, ry, colW, 'Immatriculation', trip.vehicle_plate);
+    ry += rowGap;
+  }
+
   infoRow(doc, col1, ry, colW, 'Départ', trip.departure_address);
   infoRow(doc, col2, ry, colW, 'Arrivée', trip.arrival_address);
   ry += rowGap;
