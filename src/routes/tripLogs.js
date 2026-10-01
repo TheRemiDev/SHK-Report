@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const tripLogs = require('../models/tripLogs');
+const vehicles = require('../models/vehicles');
 const { requireAdmin } = require('../middleware/auth');
 const { uploadPhotos, photosDir } = require('../middleware/upload');
 const { buildTripPdf } = require('../services/tripPdfService');
@@ -13,6 +14,22 @@ function normalizeTripFields(body) {
   const returnAddress = isRoundTrip ? (body.return_address || '').trim() : '';
   const returnDate = isRoundTrip ? (body.return_date || '').trim() : '';
   return { return_address: returnAddress || null, return_date: returnDate || null };
+}
+
+function normalizeVehicleFields(body) {
+  const vehicleId = body.vehicle_id ? parseInt(body.vehicle_id, 10) : null;
+  if (Number.isInteger(vehicleId)) {
+    const record = vehicles.findById(vehicleId);
+    if (record) {
+      return {
+        vehicle_id: record.id,
+        vehicle_brand: record.brand,
+        vehicle_model: record.model || '',
+        vehicle_plate: record.plate,
+      };
+    }
+  }
+  return { vehicle_id: null, vehicle_brand: null, vehicle_model: null, vehicle_plate: null };
 }
 
 router.get('/trips', (req, res) => {
@@ -29,7 +46,14 @@ router.get('/trips', (req, res) => {
 });
 
 router.get('/trips/new', (req, res) => {
-  res.render('trips/form', { title: 'Nouvelle fiche de route', trip: null, photos: [] });
+  const preselectedVehicle = req.query.newVehicleId ? vehicles.findById(req.query.newVehicleId) : null;
+  res.render('trips/form', {
+    title: 'Nouvelle fiche de route',
+    trip: null,
+    photos: [],
+    vehiclesList: vehicles.list(),
+    preselectedVehicle,
+  });
 });
 
 router.post('/trips', uploadPhotos, (req, res) => {
@@ -40,6 +64,7 @@ router.post('/trips', uploadPhotos, (req, res) => {
       ...req.body,
       detours: JSON.stringify(detours),
       ...normalizeTripFields(req.body),
+      ...normalizeVehicleFields(req.body),
       photos: JSON.stringify(photos),
     };
     const record = tripLogs.create(data, req.session.user.id);
@@ -66,7 +91,13 @@ router.get('/trips/:id', (req, res) => {
 router.get('/trips/:id/edit', (req, res) => {
   const trip = tripLogs.findById(req.params.id);
   if (!trip) return res.status(404).render('errors/404', { title: 'Introuvable' });
-  res.render('trips/form', { title: `Modifier ${trip.reference}`, trip, photos: JSON.parse(trip.photos || '[]') });
+  res.render('trips/form', {
+    title: `Modifier ${trip.reference}`,
+    trip,
+    photos: JSON.parse(trip.photos || '[]'),
+    vehiclesList: vehicles.list(),
+    preselectedVehicle: null,
+  });
 });
 
 router.post('/trips/:id', uploadPhotos, (req, res) => {
@@ -88,6 +119,7 @@ router.post('/trips/:id', uploadPhotos, (req, res) => {
       ...req.body,
       detours: JSON.stringify(detours),
       ...normalizeTripFields(req.body),
+      ...normalizeVehicleFields(req.body),
       photos: JSON.stringify(photos),
     };
     tripLogs.update(trip.id, data);

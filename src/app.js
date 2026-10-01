@@ -14,6 +14,7 @@ const interventionsRoutes = require('./routes/interventions');
 const adminRoutes = require('./routes/admin');
 const clientsRoutes = require('./routes/clients');
 const datacentersRoutes = require('./routes/datacenters');
+const vehiclesRoutes = require('./routes/vehicles');
 const shareRoutes = require('./routes/share');
 const tripLogsRoutes = require('./routes/tripLogs');
 
@@ -74,6 +75,7 @@ app.use('/', requireAuth, interventionsRoutes);
 app.use('/', requireAuth, adminRoutes);
 app.use('/', requireAuth, clientsRoutes);
 app.use('/', requireAuth, datacentersRoutes);
+app.use('/', requireAuth, vehiclesRoutes);
 app.use('/', requireAuth, tripLogsRoutes);
 
 app.use((req, res) => {

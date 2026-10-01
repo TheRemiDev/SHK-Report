@@ -1,6 +1,7 @@
 <%
   const detours = trip ? JSON.parse(trip.detours || '[]') : [];
   const tripMode = trip && trip.return_address ? 'aller_retour' : 'simple';
+  const selectedVehicleId = preselectedVehicle ? preselectedVehicle.id : (trip ? trip.vehicle_id : null);
 %>
 <%- include('../partials/head') %>
   <%- include('../partials/nav') %>
@@ -18,7 +19,10 @@
 
     <form method="post" action="<%= trip ? '/trips/' + trip.id : '/trips' %>" enctype="multipart/form-data" class="mt-6 space-y-6">
       <section class="card p-6">
-        <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Trajet</h2>
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold uppercase tracking-wide text-teal-600">Trajet</h2>
+          <a href="/vehicles/new?returnTo=<%= encodeURIComponent(trip ? '/trips/' + trip.id + '/edit' : '/trips/new') %>" class="text-xs font-semibold text-teal-600 hover:text-teal-700">+ Nouveau véhicule</a>
+        </div>
         <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label class="field-label" for="trip_date">Date</label>
@@ -28,6 +32,17 @@
             <label class="field-label" for="technician_name">Technicien</label>
             <input class="field-input" type="text" id="technician_name" name="technician_name" required
               value="<%= trip ? trip.technician_name : (currentUser ? currentUser.fullName : '') %>" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="field-label" for="vehicle_id">Véhicule (optionnel)</label>
+            <select class="field-select" id="vehicle_id" name="vehicle_id">
+              <option value="">— Aucun véhicule —</option>
+              <% vehiclesList.forEach(function (v) { %>
+                <option value="<%= v.id %>" <%= String(selectedVehicleId) === String(v.id) ? 'selected' : '' %>>
+                  <%= v.brand %><%= v.model ? ' ' + v.model : '' %> — <%= v.plate %>
+                </option>
+              <% }) %>
+            </select>
           </div>
           <div>
             <label class="field-label" for="departure_address">Adresse de départ</label>
